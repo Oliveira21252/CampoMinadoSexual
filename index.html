@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Campo Minado Sexual</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--pk-deep:#FF1493;--pk-hot:#FF69B4;--pk-light:#FFB6C1;--pk-pale:#FFF0F5;--pk-dark:#C71585;--txt:#4A0028;--white:#FFF;--bomb:#DC143C;--gold:#FFD700}
+html,body{width:100%;min-height:100vh;overflow-x:hidden}
+body{font-family:'Lato',sans-serif;background:linear-gradient(170deg,#FF69B4 0%,#FFB6C1 25%,#FFF0F5 55%,#FFF 100%);min-height:100vh;color:var(--txt);position:relative;display:flex;flex-direction:column;align-items:center}
+
+.bg-particle{position:fixed;border-radius:50%;pointer-events:none;z-index:0;opacity:0;animation:particleDrift linear infinite}
+@keyframes particleDrift{0%{opacity:0;transform:translateY(100vh) scale(0)}10%{opacity:0.6}90%{opacity:0.4}100%{opacity:0;transform:translateY(-10vh) scale(1)}}
+
+.emoji-3d{position:fixed;pointer-events:none;z-index:1;animation:emojiSpin ease-in-out infinite;filter:drop-shadow(0 0 8px rgba(255,20,147,0.5))}
+@keyframes emojiSpin{0%,100%{transform:translateY(0) rotateY(0) rotateX(0) scale(1)}25%{transform:translateY(-18px) rotateY(90deg) rotateX(15deg) scale(1.15)}50%{transform:translateY(-8px) rotateY(180deg) rotateX(0) scale(1)}75%{transform:translateY(-22px) rotateY(270deg) rotateX(-15deg) scale(1.1)}}
+
+.knowledge-point{position:fixed;pointer-events:none;z-index:2;text-align:center;animation:kpRise 6s ease-out forwards;opacity:0}
+.kp-label{display:block;font-family:'Playfair Display',serif;font-size:1.8rem;font-weight:900;color:var(--pk-deep);text-shadow:0 0 25px rgba(255,20,147,0.9);letter-spacing:3px}
+.kp-sub{display:block;font-size:0.72rem;color:var(--pk-dark);margin-top:3px;font-style:italic;max-width:220px;line-height:1.3}
+@keyframes kpRise{0%{opacity:0;transform:translateY(50px) scale(0.4)}12%{opacity:1;transform:translateY(0) scale(1.15)}25%{transform:translateY(-8px) scale(1)}75%{opacity:0.9}100%{opacity:0;transform:translateY(-250px) scale(0.6)}}
+
+/* ===== TODAS AS TELAS CENTRALIZADAS ===== */
+.screen{display:none;flex-direction:column;align-items:center;justify-content:center;width:100%;max-width:600px;margin:0 auto;padding:16px;position:relative;z-index:5;flex:1;min-height:100vh}
+.screen.active{display:flex}
+
+#start-screen h1{font-family:'Playfair Display',serif;font-size:clamp(1.8rem,6vw,3.5rem);font-weight:900;color:var(--white);text-shadow:0 4px 30px rgba(199,21,133,0.6),0 2px 10px rgba(0,0,0,0.3);text-align:center;line-height:1.1;animation:titlePulse 3s ease-in-out infinite}
+@keyframes titlePulse{0%,100%{text-shadow:0 4px 30px rgba(199,21,133,0.6),0 2px 10px rgba(0,0,0,0.3)}50%{text-shadow:0 4px 50px rgba(255,20,147,0.9),0 2px 20px rgba(0,0,0,0.4)}}
+#start-screen .subtitle{font-size:clamp(0.85rem,2.5vw,1.3rem);color:var(--pk-pale);margin-top:12px;font-style:italic;opacity:0;animation:fadeUp 1s 0.5s forwards}
+@keyframes fadeUp{to{opacity:1;transform:translateY(0)}}
+#start-screen .subtitle{transform:translateY(20px)}
+.start-hearts{font-size:3rem;margin:25px 0;display:flex;gap:15px;opacity:0;animation:fadeUp 1s 1s forwards;transform:translateY(20px)}
+.start-hearts span{display:inline-block;animation:heartBeat 1.5s ease-in-out infinite}
+.start-hearts span:nth-child(2){animation-delay:0.3s}
+.start-hearts span:nth-child(3){animation-delay:0.6s}
+@keyframes heartBeat{0%,100%{transform:scale(1)}50%{transform:scale(1.3)}}
+.btn-play{background:linear-gradient(135deg,var(--pk-deep),var(--pk-hot));color:var(--white);border:none;padding:16px 50px;font-size:1.2rem;font-family:'Playfair Display',serif;font-weight:700;border-radius:50px;cursor:pointer;box-shadow:0 8px 30px rgba(255,20,147,0.4);transition:all 0.3s;opacity:0;animation:fadeUp 1s 1.5s forwards;transform:translateY(20px);position:relative;overflow:hidden}
+.btn-play:hover{transform:translateY(-3px) scale(1.05);box-shadow:0 12px 40px rgba(255,20,147,0.6)}
+.btn-play::after{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:linear-gradient(45deg,transparent,rgba(255,255,255,0.15),transparent);animation:btnShine 3s infinite}
+@keyframes btnShine{0%{transform:translateX(-100%) rotate(45deg)}100%{transform:translateX(100%) rotate(45deg)}}
+.start-info{max-width:380px;text-align:center;margin-top:22px;font-size:0.82rem;color:rgba(255,255,255,0.8);line-height:1.6;opacity:0;animation:fadeUp 1s 2s forwards;transform:translateY(20px)}
+
+/* ===== TELA DO JOGO ===== */
+#game-screen{justify-content:flex-start;padding-top:12px;gap:0}
+.game-header{text-align:center;width:100%;flex-shrink:0}
+.game-header h2{font-family:'Playfair Display',serif;font-size:clamp(1rem,3.5vw,1.4rem);color:var(--white);text-shadow:0 2px 15px rgba(199,21,133,0.5)}
+.stats-bar{display:flex;justify-content:center;gap:10px;margin-top:8px;flex-wrap:wrap}
+.stat{display:flex;align-items:center;gap:5px;background:rgba(255,255,255,0.2);backdrop-filter:blur(10px);padding:5px 12px;border-radius:20px;font-size:clamp(0.7rem,2vw,0.85rem);color:var(--white);font-weight:700}
+.stat i{font-size:0.9rem}
+.progress-wrap{width:100%;margin:8px 0 6px;flex-shrink:0}
+.progress-label{font-size:0.7rem;color:var(--white);text-align:center;margin-bottom:3px;font-weight:700}
+.progress-bar{height:6px;background:rgba(255,255,255,0.25);border-radius:10px;overflow:hidden}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--gold),#FFA500);border-radius:10px;transition:width 0.5s cubic-bezier(0.34,1.56,0.64,1);box-shadow:0 0 10px rgba(255,215,0,0.5)}
+
+/* ===== GRID TOTALMENTE RESPONSIVO ===== */
+#grid{display:grid;grid-template-columns:repeat(6,1fr);gap:clamp(4px,1.2vw,8px);width:100%;max-width:400px;margin:6px auto;flex-shrink:0}
+.cell{aspect-ratio:1;perspective:600px;cursor:pointer}
+.cell-inner{width:100%;height:100%;position:relative;transition:transform 0.6s cubic-bezier(0.4,0,0.2,1);transform-style:preserve-3d}
+.cell.revealed .cell-inner{transform:rotateY(180deg)}
+.cell-front,.cell-back{position:absolute;inset:0;backface-visibility:hidden;border-radius:clamp(6px,1.5vw,10px);display:flex;align-items:center;justify-content:center}
+.cell-front{background:linear-gradient(145deg,rgba(255,255,255,0.35),rgba(255,105,180,0.25));backdrop-filter:blur(5px);border:1px solid rgba(255,255,255,0.4);box-shadow:0 3px 12px rgba(199,21,133,0.15);color:var(--pk-deep);transition:all 0.2s}
+.cell-front i{font-size:clamp(0.8rem,2.5vw,1.3rem);filter:drop-shadow(0 0 4px rgba(255,20,147,0.4))}
+.cell:not(.revealed):hover .cell-front{transform:scale(1.08);box-shadow:0 6px 25px rgba(255,20,147,0.35);border-color:var(--pk-hot)}
+.cell-back{transform:rotateY(180deg);border-radius:clamp(6px,1.5vw,10px)}
+.cell-back.safe{background:linear-gradient(145deg,#FFE4EC,#FFF0F5);border:2px solid var(--pk-light);box-shadow:0 4px 20px rgba(255,20,147,0.2)}
+.cell-back.safe i{color:var(--pk-deep);font-size:clamp(0.8rem,2.5vw,1.5rem);animation:revealPop 0.5s 0.3s both}
+@keyframes revealPop{0%{transform:scale(0) rotate(-180deg)}60%{transform:scale(1.3) rotate(10deg)}100%{transform:scale(1) rotate(0)}}
+.cell-back.bomb{background:linear-gradient(145deg,#3D0011,#8B0000);border:2px solid var(--bomb);box-shadow:0 0 30px rgba(220,20,60,0.5)}
+.cell-back.bomb i{color:var(--bomb);font-size:clamp(0.8rem,2.5vw,1.5rem);animation:bombShake 0.5s}
+@keyframes bombShake{0%,100%{transform:translate(0)}20%{transform:translate(-5px,3px)}40%{transform:translate(5px,-3px)}60%{transform:translate(-3px,5px)}80%{transform:translate(3px,-5px)}}
+#grid.shake-anim{animation:gridShake 0.5s}
+@keyframes gridShake{0%,100%{transform:translate(0)}25%{transform:translate(-4px,2px)}50%{transform:translate(4px,-2px)}75%{transform:translate(-2px,4px)}}
+
+.btn-collection{background:rgba(255,255,255,0.25);backdrop-filter:blur(10px);color:var(--white);border:2px solid rgba(255,255,255,0.5);padding:10px 26px;font-size:clamp(0.8rem,2.2vw,0.9rem);font-family:'Lato',sans-serif;font-weight:700;border-radius:25px;cursor:pointer;margin-top:10px;transition:all 0.3s;flex-shrink:0}
+.btn-collection:hover{background:rgba(255,255,255,0.4);transform:translateY(-2px)}
+
+/* ===== MODAL ===== */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(74,0,40,0.88);backdrop-filter:blur(8px);z-index:100;align-items:center;justify-content:center;padding:10px}
+.modal-overlay.active{display:flex}
+.prize-card{background:linear-gradient(170deg,#FFF0F5,#FFF,#FFE4EC);border-radius:20px;max-width:460px;width:100%;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,0.4),0 0 40px rgba(255,20,147,0.2);animation:modalIn 0.5s cubic-bezier(0.34,1.56,0.64,1);position:relative;max-height:95vh;overflow-y:auto}
+@keyframes modalIn{0%{opacity:0;transform:scale(0.7) translateY(40px)}100%{opacity:1;transform:scale(1) translateY(0)}}
+.prize-img-wrap{width:100%;position:relative;overflow:hidden;background:#1a0011}
+.prize-img-wrap img{width:100%;height:auto;max-height:60vh;object-fit:contain;display:block;margin:0 auto}
+.prize-badge{position:absolute;top:12px;right:12px;background:linear-gradient(135deg,var(--pk-deep),var(--pk-dark));color:var(--white);padding:5px 12px;border-radius:20px;font-size:0.7rem;font-weight:700;letter-spacing:1px;box-shadow:0 4px 15px rgba(255,20,147,0.4);z-index:2}
+.prize-body{padding:16px 20px 20px}
+.prize-body h3{font-family:'Playfair Display',serif;font-size:clamp(1.1rem,3.5vw,1.5rem);color:var(--pk-deep);margin-bottom:8px;line-height:1.2}
+.prize-body .desc{font-size:clamp(0.78rem,2vw,0.9rem);color:#6B0035;line-height:1.7;margin-bottom:12px}
+.dica-box{background:linear-gradient(135deg,rgba(255,20,147,0.08),rgba(255,105,180,0.05));border-left:4px solid var(--pk-hot);padding:12px;border-radius:0 12px 12px 0;margin-top:8px}
+.dica-box h4{font-family:'Playfair Display',serif;font-size:clamp(0.85rem,2.2vw,1rem);color:var(--pk-dark);margin-bottom:6px;display:flex;align-items:center;gap:8px}
+.dica-box h4 i{color:var(--pk-hot)}
+.dica-box p{font-size:clamp(0.75rem,2vw,0.85rem);color:#6B0035;line-height:1.8}
+.btn-continue{display:block;width:100%;margin-top:16px;padding:13px;background:linear-gradient(135deg,var(--pk-deep),var(--pk-hot));color:var(--white);border:none;border-radius:30px;font-size:clamp(0.85rem,2.5vw,1rem);font-family:'Playfair Display',serif;font-weight:700;cursor:pointer;transition:all 0.3s;box-shadow:0 6px 20px rgba(255,20,147,0.3)}
+.btn-continue:hover{transform:translateY(-2px);box-shadow:0 10px 30px rgba(255,20,147,0.5)}
+
+/* ===== GAME OVER — BOTÃO GRANDE E VISÍVEL ===== */
+#gameover-screen{gap:8px}
+#gameover-screen h2{font-family:'Playfair Display',serif;font-size:clamp(1.8rem,5vw,3rem);color:var(--white);text-shadow:0 4px 20px rgba(0,0,0,0.3);text-align:center}
+#gameover-screen .go-sub{color:rgba(255,255,255,0.85);font-size:clamp(0.85rem,2.5vw,1rem);text-align:center}
+.go-stats{display:flex;gap:16px;margin:8px 0}
+.go-stat{background:rgba(255,255,255,0.2);backdrop-filter:blur(10px);padding:14px 22px;border-radius:15px;text-align:center;border:1px solid rgba(255,255,255,0.3)}
+.go-stat .num{font-family:'Playfair Display',serif;font-size:clamp(1.5rem,4vw,2rem);color:var(--gold);font-weight:900}
+.go-stat .lbl{font-size:clamp(0.65rem,1.8vw,0.75rem);color:rgba(255,255,255,0.8);margin-top:2px}
+.go-timer{font-size:clamp(0.8rem,2vw,0.9rem);color:rgba(255,255,255,0.7);text-align:center}
+.go-timer span{color:var(--gold);font-weight:900;font-size:clamp(1rem,3vw,1.3rem)}
+.btn-retry{background:linear-gradient(135deg,#FFD700,#FFA500);color:#4A0028;border:none;padding:16px 50px;font-size:clamp(1rem,3vw,1.2rem);font-family:'Playfair Display',serif;font-weight:900;border-radius:50px;cursor:pointer;box-shadow:0 8px 35px rgba(255,215,0,0.5),0 0 0 3px rgba(255,255,255,0.6);transition:all 0.3s;letter-spacing:1px;animation:retryPulse 1.5s ease-in-out infinite}
+@keyframes retryPulse{0%,100%{box-shadow:0 8px 35px rgba(255,215,0,0.5),0 0 0 3px rgba(255,255,255,0.6)}50%{box-shadow:0 8px 50px rgba(255,215,0,0.8),0 0 0 5px rgba(255,255,255,0.9)}}
+.btn-retry:hover{transform:translateY(-3px) scale(1.05);box-shadow:0 12px 50px rgba(255,215,0,0.7),0 0 0 5px rgba(255,255,255,0.9)}
+
+/* ===== VITÓRIA ===== */
+#victory-screen{gap:8px}
+#victory-screen h2{font-family:'Playfair Display',serif;font-size:clamp(1.8rem,5vw,3rem);color:var(--gold);text-shadow:0 4px 20px rgba(255,215,0,0.4);text-align:center;animation:victoryGlow 2s ease-in-out infinite}
+@keyframes victoryGlow{0%,100%{text-shadow:0 4px 20px rgba(255,215,0,0.4)}50%{text-shadow:0 4px 40px rgba(255,215,0,0.8),0 0 60px rgba(255,215,0,0.3)}}
+#victory-screen .go-sub{color:var(--pk-dark);text-align:center}
+
+/* ===== COLEÇÃO ===== */
+#collection-screen{justify-content:flex-start;padding-top:30px;gap:12px}
+#collection-screen h2{font-family:'Playfair Display',serif;font-size:clamp(1.2rem,4vw,1.8rem);color:var(--pk-deep);text-align:center}
+.collection-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(clamp(100px,28vw,150px),1fr));gap:10px;width:100%}
+.coll-thumb{border-radius:12px;overflow:hidden;cursor:pointer;transition:all 0.3s;box-shadow:0 4px 15px rgba(199,21,133,0.15);background:var(--white)}
+.coll-thumb:hover{transform:translateY(-4px);box-shadow:0 8px 25px rgba(199,21,133,0.3)}
+.coll-thumb img{width:100%;height:clamp(90px,20vw,130px);object-fit:cover;display:block}
+.coll-thumb .coll-title{padding:6px 8px;font-size:clamp(0.6rem,1.8vw,0.7rem);color:var(--txt);font-weight:700;text-align:center;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.coll-empty{text-align:center;color:var(--pk-dark);font-style:italic;padding:30px;grid-column:1/-1;font-size:0.9rem}
+
+.confetti{position:fixed;pointer-events:none;z-index:200;animation:confettiFall linear forwards}
+@keyframes confettiFall{0%{opacity:1;transform:translateY(-10vh) rotate(0)}100%{opacity:0;transform:translateY(110vh) rotate(720deg)}}
+
+/* ===== RESPONSIVO PARA TELAS MUITO PEQUENAS ===== */
+@media(max-width:360px){
+  .screen{padding:10px}
+  #grid{gap:3px;max-width:280px}
+  .stats-bar{gap:6px}
+  .stat{padding:3px 8px;font-size:0.65rem}
+  .go-stats{gap:10px}
+  .go-stat{padding:10px 16px}
+}
+@media(min-width:500px){
+  #grid{max-width:400px}
+}
+@media(min-width:768px){
+  #grid{max-width:420px;gap:8px}
+}
+@media(min-width:1024px){
+  #grid{max-width:440px}
+}
+/* Tela muito larga: limitar largura */
+@media(min-width:1200px){
+  .screen{max-width:500px}
+}
+
+::-webkit-scrollbar{width:6px}
+::-webkit-scrollbar-track{background:var(--pk-pale)}
+::-webkit-scrollbar-thumb{background:var(--pk-light);border-radius:3px}
+::-webkit-scrollbar-thumb:hover{background:var(--pk-hot)}
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:0.01ms!important;transition-duration:0.01ms!important}
+}
+</style>
+</head>
+<body>
+
+<div id="emojis-container" aria-hidden="true"></div>
+<div id="kp-container" aria-hidden="true"></div>
+
+<section id="start-screen" class="screen active" role="main">
+  <h1>Campo Minado Sexual</h1>
+  <p class="subtitle">Cada caminho uma descoberta</p>
+  <div class="start-hearts" aria-hidden="true">
+    <span>&#128149;</span><span>&#128147;</span><span>&#128149;</span>
+  </div>
+  <button class="btn-play" onclick="startGame()" aria-label="Iniciar jogo">Jogar</button>
+  <p class="start-info">Descubra posições selvagens no chuveiro. A cada 3 jogadas seguras, ganhe uma prenda quente. Cuidado: uma bomba e acaba tudo!</p>
+</section>
+
+<section id="game-screen" class="screen" role="main">
+  <header class="game-header">
+    <h2>Campo Minado Sexual</h2>
+    <div class="stats-bar">
+      <div class="stat"><i class="fas fa-shield-halved" style="color:#FFD700"></i><span id="safe-display">0</span> seguras</div>
+      <div class="stat"><i class="fas fa-gift" style="color:#FF69B4"></i><span id="prize-display">0</span> prendas</div>
+    </div>
+  </header>
+  <div class="progress-wrap">
+    <div class="progress-label" id="progress-label">Proxima prenda em 3 jogadas</div>
+    <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+  </div>
+  <div id="grid" role="grid" aria-label="Campo minado"></div>
+  <button class="btn-collection" onclick="showCollection()"><i class="fas fa-gift"></i> Ver Prendas (<span id="coll-count">0</span>)</button>
+</section>
+
+<div class="modal-overlay" id="prize-modal" role="dialog" aria-modal="true">
+  <div class="prize-card">
+    <div class="prize-img-wrap">
+      <img id="prize-img" src="" alt="Posição sexual">
+      <div class="prize-badge">PRENDA</div>
+    </div>
+    <div class="prize-body">
+      <h3 id="prize-titulo"></h3>
+      <p class="desc" id="prize-desc"></p>
+      <div class="dica-box">
+        <h4><i class="fas fa-lightbulb"></i> Dica</h4>
+        <p id="prize-dica"></p>
+      </div>
+      <button class="btn-continue" onclick="closePrize()">Continuar Jogando</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="coll-modal" role="dialog" aria-modal="true">
+  <div class="prize-card">
+    <div class="prize-img-wrap">
+      <img id="coll-img" src="" alt="Posição sexual">
+      <div class="prize-badge">COLEÇÃO</div>
+    </div>
+    <div class="prize-body">
+      <h3 id="coll-titulo"></h3>
+      <p class="desc" id="coll-desc"></p>
+      <div class="dica-box">
+        <h4><i class="fas fa-lightbulb"></i> Dica</h4>
+        <p id="coll-dica"></p>
+      </div>
+      <button class="btn-continue" onclick="closeCollModal()">Voltar</button>
+    </div>
+  </div>
+</div>
+
+<section id="gameover-screen" class="screen" role="main">
+  <h2>Booom! Fim de Jogo</h2>
+  <p class="go-sub">Você pisou na bomba... mas calma, vamos recomeçar!</p>
+  <div class="go-stats">
+    <div class="go-stat"><div class="num" id="go-prizes">0</div><div class="lbl">Prendas</div></div>
+    <div class="go-stat"><div class="num" id="go-safe">0</div><div class="lbl">Seguras</div></div>
+  </div>
+  <p class="go-timer">Reiniciando em <span id="go-countdown">4</span> segundos...</p>
+  <button class="btn-retry" onclick="restartGame()"><i class="fas fa-redo"></i> JOGAR AGORA</button>
+</section>
+
+<section id="victory-screen" class="screen" role="main">
+  <h2>Você Desbloqueou Tudo!</h2>
+  <p class="go-sub">Todas as células seguras foram reveladas!</p>
+  <div class="go-stats">
+    <div class="go-stat"><div class="num" id="vic-prizes">0</div><div class="lbl">Prendas</div></div>
+    <div class="go-stat"><div class="num" id="vic-safe">0</div><div class="lbl">Seguras</div></div>
+  </div>
+  <button class="btn-retry" onclick="restartGame()"><i class="fas fa-redo"></i> JOGAR NOVAMENTE</button>
+  <button class="btn-collection" style="margin-top:8px" onclick="showCollection()"><i class="fas fa-gift"></i> Ver Todas as Prendas</button>
+</section>
+
+<section id="collection-screen" class="screen" role="main">
+  <h2>Suas Prendas Desbloqueadas</h2>
+  <div class="collection-grid" id="collection-grid"></div>
+  <button class="btn-collection" onclick="backToGame()"><i class="fas fa-arrow-left"></i> Voltar ao Jogo</button>
+</section>
+
+<script>
+const allPrizeCards=[
+  {link:"https://i.postimg.cc/7ZJ3cSWf/Chuveiro1.jpg",titulo:"Sexo no Chuveiro em Pé",descricao:"Sexo em pé no chuveiro é uma opção clássica e ideal para uma conexão rápida quando você tem um bom apoio e um parceiro que gosta da posição por trás.",dica:"Peça à sua parceira que fique de pé, de costas para você. Aproxime-se, peito contra peito, e posicione os pés mais afastados que os dela antes de penetrar.\nMantenha os quadris dela pressionados contra você com uma mão enquanto a outra se apoia na parede, transformando vocês dois em um tripé humano que não vai escorregar, parceiro.\nUse movimentos curtos e superficiais em vez de investidas profundas, porque a água já torna tudo mais escorregadio, e braçadas mais profundas significam menos controle."},
+  {link:"https://i.postimg.cc/Cx88JSRt/Chuveiro2.jpg",titulo:"Em pé, com uma perna dobrada",descricao:"A posição de pé com uma perna dobrada é perfeita quando há diferença de altura , ou quando você quer se aproximar sem que ela suba em você.",dica:"Ela fica de frente para você, levanta uma perna e a prende em volta do seu quadril enquanto você a segura embaixo da coxa ou no joelho.\nVocê posiciona os pés bem afastados, abaixa os quadris um pouco mais do que parece natural e deixa a perna dobrada dela fazer o trabalho de fechar o espaço, parceiro.\nMantenha a perna de apoio dela esticada e firmemente plantada naquele tapete antiderrapante do chuveiro, porque no momento em que o pé dela se mover, vocês duas vão cair como uma prateleira barata."},
+  {link:"https://i.postimg.cc/Pq4PFxTF/Chuveiro3.jpg",titulo:"Elevação da perna na parede do chuveiro",descricao:"O elevador de pernas para parede do chuveiro é ideal para acesso mais profundo e maior intensidade , usando a parede para manter o equilíbrio, para que você não precise se esforçar.",dica:"Ela fica de frente para você , levanta uma perna e coloca o pé totalmente apoiado na parede na altura do quadril, abrindo-se como um livro enquanto você entra no vão, cara.\nVocê segura o quadril dela com uma mão e apoia o antebraço da outra contra a parede acima do ombro dela para que nenhum dos dois se desequilibre.\nMantenha a perna levantada dela relaxada , não flexionada, porque uma perna tensa puxa a pélvis para perto do corpo, e você perderá aquele ângulo perfeito que você acabou de conseguir, cara."},
+  {link:"https://i.postimg.cc/WzJpjbcL/Chuveiro4.jpg",titulo:"A Rendição do Chuveiro",descricao:"O chuveiro de mão serve para quando você quer adicionar estimulação clitoriana constante sem usar as mãos, deixando que o chuveiro removível faça o trabalho delicioso",dica:"Ela está de costas, você entra por trás , então estende a mão e aponta o chuveirinho diretamente para o clitóris dela .\nMantenha a pressão da água entre baixa e média, porque a pressão alta dá a sensação de estar usando uma lavadora de alta pressão, e ela vai gritar, e não de uma forma sexy.\nVocê penetra devagar e superficialmente enquanto a água faz seu trabalho, porque penetrações rápidas fazem o jato errar o alvo, e aí você fica só molhado e frustrado."},
+  {link:"https://i.postimg.cc/XNyynn84/Chuveiro5.jpg",titulo:"Contra a parede",descricao:"A posição contra a parede é ideal para chuveiros apertados, onde o espaço é limitado e ela quer se sentir presa sem estar realmente presa.",dica:"Ela fica de frente para a parede , coloca as duas mãos espalmadas na altura dos ombros e apoia o peso do corpo nelas, de modo que os quadris se inclinem naturalmente para trás, em sua direção.\nVocê se aproxima dela por trás , com os pés para fora dos dela, e usa a própria parede para apoiar a mão livre enquanto a outra guia seu pênis para dentro.\nMantenha a testa dela apoiada nos antebraços para que o pescoço permaneça relaxado, porque um pescoço tenso significa uma parceira irritada, e ninguém termina assim."},
+  {link:"https://i.postimg.cc/FsVzKzJK/Chuveiro6.jpg",titulo:"A Bailarina",descricao:"A bailarina é ideal quando o espaço é menor do que suas calças jeans depois do Dia de Ação de Graças, permitindo que vocês fiquem próximos e conectados sem se espalharem .",dica:"Ela fica de frente para você, levanta uma perna e a envolve em sua cintura enquanto você a segura pela coxa e a puxa para perto até que não haja mais espaço entre vocês.\nMantenha os pés afastados na largura dos ombros e dê um pequeno passo à frente para que as costas dela toquem a parede, oferecendo-lhe um apoio firme.\nEla mantém a perna levantada relaxada e deixa você fazer o trabalho, porque no momento em que ela começa a flexionar o quadríceps, a posição se transforma em um treino, não em preliminares."},
+  {link:"https://i.postimg.cc/xCLYFpKx/Chuveiro7.jpg",titulo:"O Gancho",descricao:"O gancho é perfeito quando ela quer apoio sem perder a intensidade , usando a parede e o próprio corpo como uma âncora dupla.",dica:"Ela está de frente para a parede, com uma mão apoiada firmemente contra ela e a outra estendida para trás, puxando seu pescoço ou quadril para perto dela.\nEla entrelaça uma perna em volta do seu quadril, formando um ponto de interrogação, enquanto você a segura por baixo da coxa, impedindo que ela apoie o peso no chão escorregadio.\nVocê mantém o peito colado às costas dela e usa pequenos círculos com o quadril em vez de estocadas, porque movimentos bruscos quebram a conexão, e aí você fica ali parado, sem jeito."},
+  {link:"https://i.postimg.cc/1XRTcvMc/Chuveiro8.jpg",titulo:"A posição de inclinação para a pia",descricao:"A pia com apoio para a cabeça é ideal quando o chuveiro tem uma bancada sólida ou uma pia na altura da cintura , transformando os acessórios do banheiro em móveis eróticos.",dica:"Ela se inclina para a frente a partir da cintura , apoia os antebraços na pia ou na bancada e deixa os quadris inclinarem para trás, enquanto os pés permanecem firmes no chão, afastados na largura dos ombros.\nVocê se posiciona atrás dela, com as mãos em seus quadris, e a puxa para trás, em vez de avançar com força como uma britadeira.\nMantenha a região lombar dela ligeiramente arqueada , mas não torcida, porque uma curvatura forçada pode causar dor no dia seguinte."},
+  {link:"https://i.postimg.cc/j2k86tDK/Chuveiro9.jpg",titulo:"Em pé e carregando",descricao:"A posição \"em pé e carregando\" é para quando você malhou na academia e quer se exibir , mas é mais um exercício do que uma posição sexual.",dica:"Ela envolve sua cintura com as duas pernas e trava os tornozelos atrás de você enquanto você a segura pelas coxas ou pelas nádegas.\nVocê a encosta imediatamente na parede , porque até os caras mais fortes tremem depois de 30 segundos e pisos de azulejo não perdoam, cara.\nMantenha os joelhos ligeiramente flexionados e a coluna neutra , ou você vai lesionar as costas e passar a próxima semana explicando ao seu chefe por que está andando de um jeito estranho."},
+  {link:"https://i.postimg.cc/Bn2gbxB2/Chuveiro10.jpg",titulo:"O Monte da Cachoeira",descricao:"A posição de jato d'água em cascata é ideal quando ela quer controlar a profundidade e o ritmo enquanto você apenas relaxa e aprecia o espetáculo.",dica:"Você se senta com as costas retas e os pés bem afastados no chão , com as mãos apoiadas nos quadris ou nas coxas para se guiar.\nEla fica de costas para você , se abaixa sobre você e se inclina ligeiramente para a frente, de modo que suas mãos possam se apoiar em seus joelhos para manter o equilíbrio.\nEla controla a profundidade e o ritmo enquanto você mantém os quadris imóveis, porque no momento em que você começar a fazer movimentos de vai e vem para cima, você vai quebrar o ritmo dela e ela não ficará satisfeita."},
+  {link:"https://i.postimg.cc/xd0KdBdw/Chuveiro11.jpg",titulo:"O Passeio de Jetstream Pussy",descricao:"O segredo é usar o jato de hidromassagem da banheira ou um chuveiro de mão potente, direcionado exatamente para onde ela precisa, enquanto você permanece dentro dela.",dica:"Você se senta no chão da banheira com as costas apoiadas e os pés firmes no chão, enquanto ela se deita sobre você, de costas para você, e se alinha diretamente sobre o jato .\nEla ajusta a altura para que a água atinja seu clitóris perfeitamente enquanto você está totalmente dentro dela, então ela se move lentamente enquanto você segura seus quadris e controla a profundidade.\nMantenha a pressão da água em um nível médio , porque a pressão máxima é insuportável, e ela vai pular de cima de você na hora, e aí você vai ficar só um cara sentado sozinho numa banheira molhada."},
+  {link:"https://i.postimg.cc/3Rk9KzL9/Chuveiro12.jpg",titulo:"A Dança no Colo",descricao:"A posição de lap dance é exatamente o que o nome sugere, ideal quando você tem uma cadeira de chuveiro resistente, um banco de chuveiro ou uma banheira, e quer que ela faça um show .",dica:"Você se senta com as costas retas , os pés firmes no chão e as mãos apoiadas nas coxas, esperando por ela.\nEla se encosta em você, de costas para você, abaixa-se lentamente e começa a rebolar e se mexer enquanto você segura os quadris dela e deixa que ela faça todo o trabalho, parceiro.\nEla se inclina ligeiramente para a frente e apoia as mãos nos seus joelhos ou no banco, porque inclinar-se para trás coloca a coluna dela em um ângulo ruim e ela vai desistir cedo."}
+];
+
+const knowledgePoints=[
+  {p:"Ponto G",t:"Zona na parede vaginal anterior — o mapa-múndi do prazer feminino"},
+  {p:"Ponto C",t:"Clitóris — 8 mil terminações nervosas dedicadas exclusivamente ao prazer"},
+  {p:"Ponto A",t:"Fórnix Anterior — mais profundo que o G, acessível com ereção completa"},
+  {p:"Ponto D",t:"Deep Spot — na parede posterior vaginal, orgasmos intensos e profundos"},
+  {p:"Ponto K",t:"Zona ao redor do clitóris — a coroa de espinhos do prazer"},
+  {p:"Ponto U",t:"Uretra feminina — fonte de prazer intenso e ignorada por muitos"},
+  {p:"Massagem Yoni",t:"Toque sagrado na vulva — honra, respiração e exploração lenta"},
+  {p:"Massagem Nuru",t:"Corpo contra corpo com gel — deslize sem atrito, puro fricção sensual"},
+  {p:"Massagem Tântrica",t:"Energia sexual circulando — respiração, atraso e explosão controlada"},
+  {p:"Sexo Tântrico",t:"O orgasmo não é o destino — cada segundo é a própria viagem"}
+];
+
+const GRID_TOTAL=36,BOMB_COUNT=10;
+let grid=[],safeCount=0,prizesWon=0,prizeQueue=[],collected=[],gameState='START',countdownTimer=null,previousScreen='game-screen';
+
+function shuffle(a){const b=[...a];for(let i=b.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]]}return b}
+function showScreen(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active')}
+
+function createBgParticles(){for(let i=0;i<20;i++){const p=document.createElement('div');p.className='bg-particle';const s=Math.random()*8+3;p.style.width=s+'px';p.style.height=s+'px';p.style.left=Math.random()*100+'%';p.style.background=`rgba(255,${Math.floor(Math.random()*100+105)},${Math.floor(Math.random()*100+150)},0.5)`;p.style.animationDuration=(Math.random()*10+8)+'s';p.style.animationDelay=(Math.random()*10)+'s';document.body.appendChild(p)}}
+
+function createEmojis3D(){const c=document.getElementById('emojis-container');c.innerHTML='';const e=['\u{1F525}','\u{1F48B}','\u{1F445}','\u{1F351}','\u{1F4A6}','\u{1F608}','\u{1F924}','\u{1F497}','\u2728','\u{1F339}'];for(let i=0;i<10;i++){const el=document.createElement('div');el.className='emoji-3d';el.textContent=e[i];el.style.fontSize=(Math.random()*1.2+1.2)+'rem';el.style.left=(Math.random()*90+5)+'%';el.style.top=(Math.random()*85+5)+'%';el.style.animationDuration=(Math.random()*4+5)+'s';el.style.animationDelay=(Math.random()*5)+'s';el.style.opacity='0.6';c.appendChild(el)}}
+
+function spawnKnowledgePoint(){const c=document.getElementById('kp-container');const item=knowledgePoints[Math.floor(Math.random()*knowledgePoints.length)];const el=document.createElement('div');el.className='knowledge-point';el.innerHTML=`<span class="kp-label">${item.p}</span><span class="kp-sub">${item.t}</span>`;el.style.left=(Math.random()*65+17)+'%';el.style.bottom='0px';c.appendChild(el);setTimeout(()=>el.remove(),6500)}
+
+function launchConfetti(){const colors=['#FF1493','#FF69B4','#FFB6C1','#FFD700','#FF007F','#FFF','#C71585'];for(let i=0;i<50;i++){const c=document.createElement('div');c.className='confetti';c.style.left=Math.random()*100+'%';c.style.width=(Math.random()*8+4)+'px';c.style.height=(Math.random()*8+4)+'px';c.style.background=colors[Math.floor(Math.random()*colors.length)];c.style.borderRadius=Math.random()>0.5?'50%':'2px';c.style.animationDuration=(Math.random()*2+2)+'s';c.style.animationDelay=(Math.random()*0.5)+'s';document.body.appendChild(c);setTimeout(()=>c.remove(),4500)}}
+
+function initGrid(){grid=[];for(let i=0;i<GRID_TOTAL;i++)grid.push({isBomb:false,revealed:false});let placed=0;while(placed<BOMB_COUNT){const idx=Math.floor(Math.random()*GRID_TOTAL);if(!grid[idx].isBomb){grid[idx].isBomb=true;placed++}}}
+
+function renderGrid(){const el=document.getElementById('grid');el.innerHTML='';grid.forEach((cell,i)=>{const div=document.createElement('div');div.className='cell'+(cell.revealed?' revealed':'');div.setAttribute('role','gridcell');div.setAttribute('tabindex','0');const inner=document.createElement('div');inner.className='cell-inner';const front=document.createElement('div');front.className='cell-front';front.innerHTML='<i class="fas fa-question"></i>';const back=document.createElement('div');back.className='cell-back '+(cell.isBomb?'bomb':'safe');back.innerHTML=cell.isBomb?'<i class="fas fa-bomb"></i>':'<i class="fas fa-heart"></i>';inner.appendChild(front);inner.appendChild(back);div.appendChild(inner);div.addEventListener('click',()=>handleCellClick(i));div.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();handleCellClick(i)}});el.appendChild(div)})}
+
+function updateStats(){document.getElementById('safe-display').textContent=safeCount;document.getElementById('prize-display').textContent=prizesWon;document.getElementById('coll-count').textContent=collected.length;const prog=safeCount%3;const pct=(prog/3)*100;document.getElementById('progress-fill').style.width=pct+'%';const remaining=3-prog;document.getElementById('progress-label').textContent=remaining===3&&safeCount>0?'Proxima prenda em 3 jogadas':`Proxima prenda em ${remaining} jogada${remaining!==1?'s':''}`}
+
+function handleCellClick(index){if(gameState!=='PLAYING')return;if(grid[index].revealed)return;grid[index].revealed=true;document.getElementById('grid').children[index].classList.add('revealed');if(grid[index].isBomb){gameState='GAMEOVER';grid.forEach((c,i)=>{if(c.isBomb&&!c.revealed){c.revealed=true;document.getElementById('grid').children[i].classList.add('revealed')}});document.getElementById('grid').classList.add('shake-anim');setTimeout(()=>document.getElementById('grid').classList.remove('shake-anim'),500);setTimeout(showGameOver,1000)}else{safeCount++;updateStats();if(safeCount%3===0&&prizeQueue.length>0){gameState='PRIZE';const card=prizeQueue.shift();collected.push(card);prizesWon++;updateStats();setTimeout(()=>showPrizeModal(card),700)}checkVictory()}}
+
+function checkVictory(){const safeCells=grid.filter(c=>!c.isBomb).length;const revealedSafe=grid.filter(c=>!c.isBomb&&c.revealed).length;if(revealedSafe===safeCells&&gameState==='PLAYING'){gameState='VICTORY';launchConfetti();setTimeout(showVictory,800)}}
+
+function showPrizeModal(card){document.getElementById('prize-img').src=card.link;document.getElementById('prize-img').alt=card.titulo;document.getElementById('prize-titulo').textContent=card.titulo;document.getElementById('prize-desc').textContent=card.descricao;document.getElementById('prize-dica').innerHTML=card.dica.replace(/\n/g,'<br>');document.getElementById('prize-modal').classList.add('active');launchConfetti()}
+function closePrize(){document.getElementById('prize-modal').classList.remove('active');if(gameState==='PRIZE')gameState='PLAYING';checkVictory()}
+
+function showGameOver(){document.getElementById('go-prizes').textContent=prizesWon;document.getElementById('go-safe').textContent=safeCount;showScreen('gameover-screen');let countdown=4;const cdEl=document.getElementById('go-countdown');cdEl.textContent=countdown;if(countdownTimer)clearInterval(countdownTimer);countdownTimer=setInterval(()=>{countdown--;cdEl.textContent=countdown;if(countdown<=0){clearInterval(countdownTimer);countdownTimer=null;startGame()}},1000)}
+
+function showVictory(){document.getElementById('vic-prizes').textContent=prizesWon;document.getElementById('vic-safe').textContent=safeCount;showScreen('victory-screen')}
+
+function showCollection(){const g=document.getElementById('collection-grid');g.innerHTML='';if(collected.length===0){g.innerHTML='<div class="coll-empty">Nenhuma prenda desbloqueada ainda. Jogue e descubra!</div>'}else{collected.forEach((card,i)=>{const thumb=document.createElement('div');thumb.className='coll-thumb';thumb.innerHTML=`<img src="${card.link}" alt="${card.titulo}" loading="lazy"><div class="coll-title">${card.titulo}</div>`;thumb.addEventListener('click',()=>openCollCard(i));g.appendChild(thumb)})}previousScreen=document.querySelector('.screen.active')?.id||'game-screen';showScreen('collection-screen')}
+function openCollCard(idx){const card=collected[idx];document.getElementById('coll-img').src=card.link;document.getElementById('coll-img').alt=card.titulo;document.getElementById('coll-titulo').textContent=card.titulo;document.getElementById('coll-desc').textContent=card.descricao;document.getElementById('coll-dica').innerHTML=card.dica.replace(/\n/g,'<br>');document.getElementById('coll-modal').classList.add('active')}
+function closeCollModal(){document.getElementById('coll-modal').classList.remove('active')}
+function backToGame(){if(gameState==='PLAYING'||gameState==='PRIZE')showScreen('game-screen');else if(gameState==='GAMEOVER')showScreen('gameover-screen');else if(gameState==='VICTORY')showScreen('victory-screen');else showScreen(previousScreen)}
+
+function startGame(){if(countdownTimer){clearInterval(countdownTimer);countdownTimer=null}safeCount=0;prizesWon=0;prizeQueue=shuffle(allPrizeCards);gameState='PLAYING';initGrid();renderGrid();updateStats();showScreen('game-screen')}
+function restartGame(){startGame()}
+
+document.addEventListener('DOMContentLoaded',()=>{createBgParticles();createEmojis3D();setInterval(spawnKnowledgePoint,5000);setTimeout(spawnKnowledgePoint,1500)});
+</script>
+</body>
+</html>
