@@ -1,0 +1,806 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#1E0715">
+<title>Campo Minado Sexual</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,600&family=Cormorant+Garamond:ital,wght@1,500;1,600&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg-0:#12030B;--bg-1:#1E0715;--bg-2:#2E0C1F;--bg-3:#431428;
+  --rose:#E9B7C0;--rose-soft:#D99AA7;--rose-hot:#D4697F;--rose-deep:#A85666;
+  --gold:#E6C68C;--gold-hi:#F7E3B0;--gold-dp:#B8945F;
+  --ivory:#FBEFF2;--txt:#E9D7DE;--txt-dim:#C4A3B0;
+  --bomb:#E23A55;
+  --glass:rgba(255,255,255,0.05);--glass-brd:rgba(230,198,140,0.25);
+}
+html,body{width:100%;min-height:100vh;min-height:100dvh;overflow-x:hidden}
+body{font-family:'Jost',sans-serif;color:var(--txt);position:relative;display:flex;flex-direction:column;align-items:center;
+  background:
+    radial-gradient(1100px 700px at 12% -8%,rgba(212,105,127,0.16),transparent 60%),
+    radial-gradient(900px 650px at 88% 108%,rgba(168,86,102,0.14),transparent 62%),
+    radial-gradient(700px 500px at 50% 50%,rgba(67,20,40,0.30),transparent 70%),
+    linear-gradient(168deg,#2A0917 0%,#15040C 48%,#1E0715 100%);
+  background-attachment:fixed}
+body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:1;
+  background:radial-gradient(125% 95% at 50% 42%,transparent 52%,rgba(8,1,5,0.55) 100%)}
+body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:2;opacity:0.05;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+
+/* ===== TOQUE DE LUJO ===== */
+.gold-text{background:linear-gradient(105deg,#B8945F 0%,#F7E3B0 28%,#E6C68C 52%,#F7E3B0 74%,#B8945F 100%);background-size:220% auto;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent;animation:goldSheen 7s linear infinite}
+@keyframes goldSheen{to{background-position:220% center}}
+.ornament{display:flex;align-items:center;gap:12px;color:var(--gold-dp);font-size:0.55rem;margin:16px 0 4px}
+.ornament::before,.ornament::after{content:'';height:1px;width:58px;background:var(--gold-dp)}
+.ornament::before{background:linear-gradient(90deg,transparent,var(--gold-dp))}
+.ornament::after{background:linear-gradient(90deg,var(--gold-dp),transparent)}
+.ornament i{color:var(--gold)}
+
+/* ===== BOTAO DE SOM ===== */
+#sound-toggle{position:fixed;top:14px;right:14px;z-index:300;width:44px;height:44px;border-radius:50%;background:rgba(30,7,21,0.55);border:1px solid var(--glass-brd);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);color:var(--gold);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:0.95rem;transition:all .3s;box-shadow:0 4px 18px rgba(0,0,0,0.35)}
+#sound-toggle:hover{transform:scale(1.08);border-color:var(--gold);box-shadow:0 6px 24px rgba(230,198,140,0.25)}
+#sound-toggle.muted{color:var(--txt-dim);opacity:0.7}
+
+/* ===== DECORACOES FLUTUANTES ===== */
+.bg-particle{position:fixed;border-radius:50%;pointer-events:none;z-index:0;opacity:0;animation:particleDrift linear infinite}
+@keyframes particleDrift{0%{opacity:0;transform:translateY(102vh) scale(0)}12%{opacity:0.5}85%{opacity:0.3}100%{opacity:0;transform:translateY(-8vh) scale(1)}}
+.emoji-3d{position:fixed;pointer-events:none;z-index:1;animation:emojiSpin ease-in-out infinite;opacity:0.28;filter:blur(0.3px) drop-shadow(0 0 10px rgba(212,105,127,0.35))}
+@keyframes emojiSpin{0%,100%{transform:translateY(0) rotateY(0) scale(1)}25%{transform:translateY(-16px) rotateY(90deg) scale(1.12)}50%{transform:translateY(-6px) rotateY(180deg) scale(1)}75%{transform:translateY(-20px) rotateY(270deg) scale(1.08)}}
+.knowledge-point{position:fixed;pointer-events:none;z-index:2;text-align:center;animation:kpRise 7s ease-out forwards;opacity:0;background:rgba(30,7,21,0.6);border:1px solid rgba(230,198,140,0.22);border-radius:14px;padding:10px 16px;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);box-shadow:0 8px 30px rgba(0,0,0,0.35)}
+.kp-label{display:block;font-family:'Playfair Display',serif;font-size:1.2rem;font-weight:700;color:var(--gold-hi);letter-spacing:2px}
+.kp-sub{display:block;font-size:0.68rem;color:var(--txt-dim);margin-top:4px;font-style:italic;max-width:230px;line-height:1.4}
+.knowledge-point.flirty{border-color:rgba(212,105,127,0.5)}
+.knowledge-point.flirty .kp-label{font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:600;font-size:1.45rem;color:var(--rose);letter-spacing:1px}
+@keyframes kpRise{0%{opacity:0;transform:translateY(50px) scale(0.85)}10%{opacity:1;transform:translateY(0) scale(1)}20%{transform:translateY(-10px) scale(1)}75%{opacity:0.9}100%{opacity:0;transform:translateY(-200px) scale(0.9)}}
+
+/* ===== TELAS ===== */
+.screen{display:none;flex-direction:column;align-items:center;justify-content:flex-start;width:100%;max-width:600px;margin:0 auto;padding:20px 16px;position:relative;z-index:5;min-height:100vh;min-height:100dvh;overflow-y:auto}
+.screen.active{display:flex;animation:screenIn .6s cubic-bezier(0.22,1,0.36,1)}
+@keyframes screenIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+.game-center{display:flex;flex-direction:column;align-items:center;width:100%;margin:auto 0;flex:1;justify-content:center}
+
+/* ===== TELA INICIAL ===== */
+#start-screen h1{font-family:'Playfair Display',serif;font-size:clamp(2rem,6.4vw,3.4rem);font-weight:900;text-align:center;line-height:1.08;letter-spacing:0.5px}
+#start-screen .subtitle{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:clamp(1.05rem,3vw,1.35rem);color:var(--rose);margin-top:10px;opacity:0;animation:fadeUp 1s .4s forwards;transform:translateY(18px);letter-spacing:0.5px}
+@keyframes fadeUp{to{opacity:1;transform:translateY(0)}}
+.emblem{width:92px;height:92px;border-radius:50%;display:flex;align-items:center;justify-content:center;position:relative;margin-bottom:20px;background:radial-gradient(circle at 35% 30%,rgba(233,183,192,0.18),rgba(0,0,0,0));border:1px solid rgba(230,198,140,0.45);box-shadow:0 0 40px rgba(212,105,127,0.25),inset 0 0 25px rgba(212,105,127,0.12)}
+.emblem::before{content:'';position:absolute;inset:-9px;border-radius:50%;border:1px dashed rgba(230,198,140,0.4);animation:spinSlow 26s linear infinite}
+.emblem::after{content:'';position:absolute;inset:-18px;border-radius:50%;border:1px solid rgba(230,198,140,0.15)}
+@keyframes spinSlow{to{transform:rotate(360deg)}}
+.emblem-core i{font-size:1.9rem;background:linear-gradient(135deg,var(--gold-hi),var(--rose-hot));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent;animation:heartBeat 1.9s ease-in-out infinite}
+.start-hearts{font-size:1.9rem;margin:20px 0 4px;display:flex;gap:16px;opacity:0;animation:fadeUp 1s .9s forwards;transform:translateY(16px)}
+.start-hearts span{display:inline-block;animation:heartBeat 2s ease-in-out infinite}
+.start-hearts span:nth-child(2){animation-delay:.35s}
+.start-hearts span:nth-child(3){animation-delay:.7s}
+@keyframes heartBeat{0%,100%{transform:scale(1)}50%{transform:scale(1.22)}}
+
+/* ===== BOTOES ===== */
+button{font-family:'Jost',sans-serif}
+.btn-gold{background:linear-gradient(135deg,#F7E3B0,#E6C68C 45%,#C9A36B);color:#2B0A18;border:none;padding:15px 52px;font-size:0.95rem;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;border-radius:999px;cursor:pointer;position:relative;overflow:hidden;transition:transform .3s,box-shadow .3s;box-shadow:0 10px 32px rgba(230,198,140,0.22),0 4px 14px rgba(0,0,0,0.4)}
+.btn-gold::after{content:'';position:absolute;top:-60%;left:-60%;width:220%;height:220%;background:linear-gradient(45deg,transparent,rgba(255,255,255,0.35),transparent);animation:btnShine 3.4s infinite}
+@keyframes btnShine{0%{transform:translateX(-90%) rotate(45deg)}100%{transform:translateX(90%) rotate(45deg)}}
+.btn-gold:hover{transform:translateY(-3px) scale(1.04);box-shadow:0 14px 44px rgba(230,198,140,0.35),0 6px 18px rgba(0,0,0,0.45)}
+.btn-play{opacity:0;animation:fadeUp 1s 1.2s forwards;transform:translateY(16px);margin-top:14px}
+.btn-play:hover{transform:translateY(-3px) scale(1.04)}
+.start-info{background:rgba(30,7,21,0.55);border:1px solid var(--glass-brd);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);border-radius:16px;padding:18px 22px;max-width:400px;text-align:center;margin-top:20px;font-size:0.88rem;color:var(--txt);line-height:1.75;font-weight:300;opacity:0;animation:fadeUp 1s 1.6s forwards;transform:translateY(16px)}
+.start-info strong{color:var(--gold-hi);font-weight:500}
+.start-coll{margin-top:13px;font-size:0.68rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--txt-dim);opacity:0;animation:fadeUp 1s 1.9s forwards;transform:translateY(10px)}
+.start-coll b{color:var(--gold);font-weight:600}
+
+/* ===== CABECALHO DO JOGO ===== */
+.game-header{text-align:center;width:100%;flex-shrink:0}
+.game-header h2{font-family:'Playfair Display',serif;font-size:clamp(1.15rem,3.6vw,1.5rem);font-weight:700}
+.stats-bar{display:flex;justify-content:center;gap:8px;margin-top:10px;flex-wrap:wrap}
+.stat{display:flex;align-items:center;gap:6px;background:var(--glass);border:1px solid var(--glass-brd);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);padding:6px 14px;border-radius:999px;font-size:clamp(0.72rem,2vw,0.82rem);color:var(--ivory);font-weight:400;letter-spacing:0.04em}
+.stat i{font-size:0.78rem;color:var(--gold)}
+.stat b{color:var(--gold-hi);font-weight:600}
+
+.progress-wrap{width:100%;max-width:420px;margin:14px 0 12px;flex-shrink:0}
+.progress-label{font-size:0.64rem;color:var(--txt-dim);text-align:center;margin-bottom:6px;font-weight:500;letter-spacing:0.24em;text-transform:uppercase}
+.progress-bar{height:4px;background:rgba(255,255,255,0.08);border-radius:10px;overflow:hidden}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--gold-dp),var(--gold-hi));border-radius:10px;transition:width .5s cubic-bezier(0.34,1.56,0.64,1);box-shadow:0 0 12px rgba(230,198,140,0.5)}
+
+/* ===== GRADE ===== */
+#grid{display:grid;grid-template-columns:repeat(6,1fr);gap:clamp(4px,1.2vw,8px);width:100%;max-width:400px;flex-shrink:0}
+.cell{aspect-ratio:1;perspective:600px;cursor:pointer}
+.cell-enter{animation:cellIn .5s backwards}
+@keyframes cellIn{from{opacity:0;transform:scale(0.6)}to{opacity:1;transform:scale(1)}}
+.cell-inner{width:100%;height:100%;position:relative;transition:transform .6s cubic-bezier(0.4,0,0.2,1);transform-style:preserve-3d}
+.cell.revealed .cell-inner{transform:rotateY(180deg)}
+.cell-front,.cell-back{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:clamp(6px,1.5vw,10px);display:flex;align-items:center;justify-content:center}
+.cell-front{background:linear-gradient(150deg,rgba(255,255,255,0.08),rgba(212,105,127,0.09));border:1px solid rgba(233,183,192,0.2);box-shadow:0 4px 16px rgba(0,0,0,0.35),inset 0 1px 0 rgba(255,255,255,0.07);transition:all .25s}
+.cell-front i{font-size:clamp(0.7rem,2vw,1.05rem);color:rgba(233,183,192,0.35)}
+.cell:not(.revealed):hover .cell-front{transform:translateY(-2px) scale(1.05);border-color:rgba(230,198,140,0.55);box-shadow:0 8px 26px rgba(212,105,127,0.28),inset 0 1px 0 rgba(255,255,255,0.1)}
+.cell:not(.revealed):hover .cell-front i{color:rgba(230,198,140,0.65)}
+.cell:not(.revealed):active .cell-front{transform:scale(0.96)}
+.cell-back{transform:rotateY(180deg);border-radius:clamp(6px,1.5vw,10px)}
+.cell-back.safe{background:radial-gradient(130% 130% at 30% 20%,rgba(233,183,192,0.28),rgba(168,86,102,0.14));border:1px solid rgba(233,183,192,0.4);box-shadow:0 4px 18px rgba(212,105,127,0.2),inset 0 1px 0 rgba(255,255,255,0.12)}
+.cell-back.safe i{color:var(--rose);font-size:clamp(0.75rem,2.2vw,1.25rem);animation:revealPop .5s .25s both}
+@keyframes revealPop{0%{transform:scale(0) rotate(-160deg)}60%{transform:scale(1.25) rotate(8deg)}100%{transform:scale(1) rotate(0)}}
+.cell-back.bomb{background:radial-gradient(circle at 50% 38%,#8F1430,#3A0713 72%);border:1px solid rgba(226,58,85,0.65);box-shadow:0 0 26px rgba(226,58,85,0.4),inset 0 0 20px rgba(0,0,0,0.5)}
+.cell-back.bomb i{color:#FF6B7F;font-size:clamp(0.75rem,2.2vw,1.25rem);animation:bombShake .5s}
+@keyframes bombShake{0%,100%{transform:translate(0)}20%{transform:translate(-5px,3px)}40%{transform:translate(5px,-3px)}60%{transform:translate(-3px,5px)}80%{transform:translate(3px,-5px)}}
+#grid.shake-anim{animation:gridShake .5s}
+@keyframes gridShake{0%,100%{transform:translate(0)}25%{transform:translate(-4px,2px)}50%{transform:translate(4px,-2px)}75%{transform:translate(-2px,4px)}}
+
+.btn-collection{background:rgba(255,255,255,0.05);color:var(--gold-hi);border:1px solid rgba(230,198,140,0.45);padding:12px 30px;font-size:0.78rem;font-weight:500;letter-spacing:0.14em;text-transform:uppercase;border-radius:999px;cursor:pointer;margin-top:16px;transition:all .3s;flex-shrink:0;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);box-shadow:0 4px 18px rgba(0,0,0,0.3)}
+.btn-collection:hover{background:rgba(230,198,140,0.12);transform:translateY(-2px);box-shadow:0 8px 26px rgba(0,0,0,0.35)}
+.btn-collection i{color:var(--gold);margin-right:7px}
+
+/* ===== MODAIS ===== */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(10,1,7,0.82);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);z-index:100;align-items:center;justify-content:center;padding:12px}
+.modal-overlay.active{display:flex;animation:overlayIn .35s}
+@keyframes overlayIn{from{opacity:0}to{opacity:1}}
+.prize-card{background:linear-gradient(170deg,#31101F 0%,#1B0611 70%);border:1px solid rgba(230,198,140,0.4);border-radius:20px;max-width:460px;width:100%;overflow:hidden;box-shadow:0 30px 80px rgba(0,0,0,0.65),0 0 70px rgba(212,105,127,0.12);animation:modalIn .5s cubic-bezier(0.34,1.56,0.64,1);position:relative;max-height:94vh;overflow-y:auto}
+@keyframes modalIn{0%{opacity:0;transform:scale(0.82) translateY(36px)}100%{opacity:1;transform:scale(1) translateY(0)}}
+.prize-img-wrap{width:100%;position:relative;overflow:hidden;background:#0E0209;border-bottom:1px solid rgba(230,198,140,0.3)}
+.prize-img-wrap img{width:100%;height:auto;max-height:54vh;object-fit:contain;display:block;margin:0 auto}
+.prize-badge{position:absolute;top:12px;right:12px;background:linear-gradient(135deg,var(--gold-dp),var(--gold-hi));color:#2B0A18;padding:5px 13px;border-radius:999px;font-size:0.62rem;font-weight:600;letter-spacing:0.18em;box-shadow:0 4px 15px rgba(0,0,0,0.4);z-index:2}
+.prize-body{padding:18px 22px 22px}
+.prize-body h3{font-family:'Playfair Display',serif;font-size:clamp(1.15rem,3.6vw,1.5rem);color:var(--gold-hi);margin-bottom:10px;line-height:1.25}
+.prize-body .desc{font-size:clamp(0.8rem,2vw,0.9rem);color:var(--txt);line-height:1.75;font-weight:300;margin-bottom:14px}
+.dica-box{background:rgba(230,198,140,0.06);border-left:2px solid var(--gold);padding:13px 15px;border-radius:0 12px 12px 0;margin-top:8px}
+.dica-box h4{font-family:'Playfair Display',serif;font-size:clamp(0.88rem,2.3vw,1rem);color:var(--gold);margin-bottom:7px;display:flex;align-items:center;gap:8px;letter-spacing:0.06em;font-weight:700}
+.dica-box h4 i{color:var(--gold);font-size:0.78rem}
+.dica-box p{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:clamp(0.98rem,2.6vw,1.08rem);color:var(--txt);line-height:1.7;font-weight:500}
+.btn-continue{display:block;width:100%;margin-top:18px;padding:14px;background:linear-gradient(135deg,var(--rose-hot),var(--rose-deep));color:var(--ivory);border:none;border-radius:999px;font-size:0.85rem;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;cursor:pointer;transition:all .3s;box-shadow:0 8px 24px rgba(212,105,127,0.3)}
+.btn-continue:hover{transform:translateY(-2px);box-shadow:0 12px 32px rgba(212,105,127,0.45)}
+
+/* ===== FIM DE JOGO / VITORIA ===== */
+#gameover-screen,#victory-screen{gap:6px}
+#gameover-screen h2{font-family:'Playfair Display',serif;font-size:clamp(1.9rem,5.4vw,3rem);font-weight:900;color:var(--ivory);text-shadow:0 0 35px rgba(226,58,85,0.45),0 3px 15px rgba(0,0,0,0.5);text-align:center}
+.go-sub{font-family:'Cormorant Garamond',serif;font-style:italic;color:var(--rose-soft);font-size:clamp(0.95rem,2.6vw,1.15rem);text-align:center;margin-top:6px}
+.go-stats{display:flex;gap:12px;margin:18px 0 10px;flex-wrap:wrap;justify-content:center}
+.go-stat{background:var(--glass);border:1px solid var(--glass-brd);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);padding:14px 24px;border-radius:16px;text-align:center;min-width:88px}
+.go-stat .num{font-family:'Playfair Display',serif;font-size:clamp(1.5rem,4vw,2rem);color:var(--gold-hi);font-weight:900}
+.go-stat .lbl{font-size:0.6rem;color:var(--txt-dim);margin-top:3px;letter-spacing:0.2em;text-transform:uppercase}
+.go-timer{font-size:0.8rem;color:var(--txt-dim);text-align:center;letter-spacing:0.06em}
+.go-timer span{color:var(--gold);font-weight:600;font-size:1.05rem}
+.btn-retry{margin-top:16px}
+#victory-screen h2{font-family:'Playfair Display',serif;font-size:clamp(1.9rem,5.4vw,3rem);font-weight:900;text-align:center;animation:victoryGlow 2.4s ease-in-out infinite}
+@keyframes victoryGlow{0%,100%{filter:drop-shadow(0 0 12px rgba(230,198,140,0.25))}50%{filter:drop-shadow(0 0 30px rgba(230,198,140,0.5))}}
+
+/* ===== COLECAO ===== */
+#collection-screen{padding-top:34px;gap:14px}
+#collection-screen h2{font-family:'Playfair Display',serif;font-size:clamp(1.3rem,4.2vw,1.9rem);font-weight:900;text-align:center}
+.coll-progress{text-align:center;font-size:0.68rem;letter-spacing:0.24em;text-transform:uppercase;color:var(--txt-dim)}
+.coll-progress b{color:var(--gold-hi);font-weight:600}
+.coll-complete{display:none;text-align:center;padding:13px 18px;border:1px solid rgba(230,198,140,0.55);border-radius:14px;background:linear-gradient(135deg,rgba(230,198,140,0.14),rgba(212,105,127,0.08));color:var(--gold-hi);font-family:'Playfair Display',serif;font-size:1rem;letter-spacing:0.04em}
+.coll-complete.show{display:block;animation:fadeUp .8s}
+.collection-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(clamp(100px,28vw,150px),1fr));gap:12px;width:100%}
+.coll-thumb{border-radius:14px;overflow:hidden;cursor:pointer;transition:all .3s;background:var(--glass);border:1px solid var(--glass-brd);box-shadow:0 4px 16px rgba(0,0,0,0.3)}
+.coll-thumb:hover{transform:translateY(-4px);border-color:var(--gold);box-shadow:0 10px 28px rgba(0,0,0,0.4),0 0 20px rgba(230,198,140,0.12)}
+.coll-thumb img{width:100%;height:clamp(90px,20vw,130px);object-fit:cover;display:block}
+.coll-thumb .coll-title{padding:8px 9px;font-size:clamp(0.6rem,1.8vw,0.7rem);color:var(--txt);font-weight:500;text-align:center;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.coll-empty{text-align:center;color:var(--txt-dim);font-style:italic;padding:30px;grid-column:1/-1;font-size:0.9rem}
+
+/* ===== CONFETE ===== */
+.confetti{position:fixed;pointer-events:none;z-index:200;animation:confettiFall linear forwards}
+@keyframes confettiFall{0%{opacity:1;transform:translateY(-10vh) rotate(0)}100%{opacity:0;transform:translateY(110vh) rotate(720deg)}}
+
+/* ===== RESPONSIVO ===== */
+@media(max-width:360px){
+  .screen{padding:12px 10px}
+  #grid{gap:3px;max-width:280px}
+  .stats-bar{gap:6px}
+  .stat{padding:4px 10px;font-size:0.65rem}
+  .go-stats{gap:8px}
+  .go-stat{padding:10px 16px}
+  .start-info{padding:14px 16px;font-size:0.82rem}
+}
+@media(min-width:500px){#grid{max-width:400px}}
+@media(min-width:768px){#grid{max-width:420px;gap:8px}}
+@media(min-width:1024px){#grid{max-width:440px}}
+@media(min-width:1200px){.screen{max-width:500px}}
+
+::-webkit-scrollbar{width:6px}
+::-webkit-scrollbar-track{background:var(--bg-0)}
+::-webkit-scrollbar-thumb{background:var(--rose-deep);border-radius:3px}
+::-webkit-scrollbar-thumb:hover{background:var(--rose-hot)}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:0.01ms!important;transition-duration:0.01ms!important}}
+</style>
+</head>
+<body>
+
+<button id="sound-toggle" aria-label="Ativar som"><i class="fas fa-volume-high" aria-hidden="true"></i></button>
+<div id="emojis-container" aria-hidden="true"></div>
+<div id="kp-container" aria-hidden="true"></div>
+
+<section id="start-screen" class="screen active" role="main">
+  <div class="game-center">
+    <div class="emblem" aria-hidden="true"><div class="emblem-core"><i class="fas fa-heart"></i></div></div>
+    <h1 class="gold-text">Campo Minado Sexual</h1>
+    <p class="subtitle">Cada caminho, uma descoberta</p>
+    <div class="ornament" aria-hidden="true"><i class="fas fa-diamond"></i></div>
+    <div class="start-hearts" aria-hidden="true"><span>&#128149;</span><span>&#128147;</span><span>&#128149;</span></div>
+    <button class="btn-gold btn-play" onclick="startGame()" aria-label="Iniciar jogo">Jogar</button>
+    <div class="start-info">Descubra <strong>posi&ccedil;&otilde;es selvagens no chuveiro</strong>. A cada <strong>3 jogadas seguras</strong>, ganhe uma prenda quente. Cuidado: <strong>uma bomba e acaba tudo!</strong></div>
+    <div class="start-coll" id="start-coll"></div>
+  </div>
+</section>
+
+<section id="game-screen" class="screen" role="main">
+  <div class="game-center">
+    <header class="game-header">
+      <h2 class="gold-text">Campo Minado Sexual</h2>
+      <div class="stats-bar">
+        <div class="stat"><i class="fas fa-shield-halved"></i><b id="safe-display">0</b>&nbsp;seguras</div>
+        <div class="stat"><i class="fas fa-gift"></i><b id="prize-display">0</b>&nbsp;prendas</div>
+      </div>
+    </header>
+    <div class="progress-wrap">
+      <div class="progress-label" id="progress-label">Pr&oacute;xima prenda em 3 jogadas</div>
+      <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+    </div>
+    <div id="grid" role="grid" aria-label="Campo minado"></div>
+    <button class="btn-collection" onclick="showCollection()"><i class="fas fa-gift"></i>Ver Prendas (<span id="coll-count">0</span>)</button>
+  </div>
+</section>
+
+<div class="modal-overlay" id="prize-modal" role="dialog" aria-modal="true">
+  <div class="prize-card">
+    <div class="prize-img-wrap">
+      <img id="prize-img" src="" alt="Posi&ccedil;&atilde;o sexual">
+      <div class="prize-badge" id="prize-badge">PRENDA</div>
+    </div>
+    <div class="prize-body">
+      <h3 id="prize-titulo"></h3>
+      <p class="desc" id="prize-desc"></p>
+      <div class="dica-box">
+        <h4><i class="fas fa-lightbulb"></i> Dica</h4>
+        <p id="prize-dica"></p>
+      </div>
+      <button class="btn-continue" onclick="closePrize()">Continuar Jogando</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="coll-modal" role="dialog" aria-modal="true">
+  <div class="prize-card">
+    <div class="prize-img-wrap">
+      <img id="coll-img" src="" alt="Posi&ccedil;&atilde;o sexual">
+      <div class="prize-badge">COLE&Ccedil;&Atilde;O</div>
+    </div>
+    <div class="prize-body">
+      <h3 id="coll-titulo"></h3>
+      <p class="desc" id="coll-desc"></p>
+      <div class="dica-box">
+        <h4><i class="fas fa-lightbulb"></i> Dica</h4>
+        <p id="coll-dica"></p>
+      </div>
+      <button class="btn-continue" onclick="closeCollModal()">Voltar</button>
+    </div>
+  </div>
+</div>
+
+<section id="gameover-screen" class="screen" role="main">
+  <div class="game-center">
+    <h2>Booom! Fim de Jogo</h2>
+    <p class="go-sub">Voc&ecirc; pisou na bomba... mas calma, suas prendas continuam com voc&ecirc;!</p>
+    <div class="go-stats">
+      <div class="go-stat"><div class="num" id="go-prizes">0</div><div class="lbl">Prendas</div></div>
+      <div class="go-stat"><div class="num" id="go-safe">0</div><div class="lbl">Seguras</div></div>
+      <div class="go-stat"><div class="num" id="go-best">0</div><div class="lbl">Recorde</div></div>
+    </div>
+    <p class="go-timer">Reiniciando em <span id="go-countdown">4</span> segundos...</p>
+    <button class="btn-gold btn-retry" onclick="restartGame()"><i class="fas fa-redo"></i> Jogar Agora</button>
+  </div>
+</section>
+
+<section id="victory-screen" class="screen" role="main">
+  <div class="game-center">
+    <h2 class="gold-text">Voc&ecirc; Desbloqueou Tudo!</h2>
+    <p class="go-sub" style="color:var(--gold)">Todas as c&eacute;lulas seguras foram reveladas!</p>
+    <div class="go-stats">
+      <div class="go-stat"><div class="num" id="vic-prizes">0</div><div class="lbl">Prendas</div></div>
+      <div class="go-stat"><div class="num" id="vic-safe">0</div><div class="lbl">Seguras</div></div>
+    </div>
+    <button class="btn-gold btn-retry" onclick="restartGame()"><i class="fas fa-redo"></i> Jogar Novamente</button>
+    <button class="btn-collection" style="margin-top:12px" onclick="showCollection()"><i class="fas fa-gift"></i>Ver Todas as Prendas</button>
+  </div>
+</section>
+
+<section id="collection-screen" class="screen" role="main">
+  <h2 class="gold-text">Suas Prendas Desbloqueadas</h2>
+  <div class="coll-progress" id="coll-progress"></div>
+  <div class="coll-complete" id="coll-complete">&#10024; Cole&ccedil;&atilde;o completa! Voc&ecirc;s desbloquearam tudo.</div>
+  <div class="collection-grid" id="collection-grid"></div>
+  <button class="btn-collection" onclick="backToGame()"><i class="fas fa-arrow-left"></i>Voltar ao Jogo</button>
+</section>
+
+<script>
+'use strict';
+/* ===================== CONTEUDO ORIGINAL PRESERVADO ===================== */
+const allPrizeCards=[
+  {link:"https://i.postimg.cc/7ZJ3cSWf/Chuveiro1.jpg",titulo:"Sexo no Chuveiro em Pé",descricao:"Sexo em pé no chuveiro é uma opção clássica e ideal para uma conexão rápida quando você tem um bom apoio e um parceiro que gosta da posição por trás.",dica:"Peça à sua parceira que fique de pé, de costas para você. Aproxime-se, peito contra peito, e posicione os pés mais afastados que os dela antes de penetrar.\nMantenha os quadris dela pressionados contra você com uma mão enquanto a outra se apoia na parede, transformando vocês dois em um tripé humano que não vai escorregar, parceiro.\nUse movimentos curtos e superficiais em vez de investidas profundas, porque a água já torna tudo mais escorregadio, e braçadas mais profundas significam menos controle."},
+  {link:"https://i.postimg.cc/Cx88JSRt/Chuveiro2.jpg",titulo:"Em pé, com uma perna dobrada",descricao:"A posição de pé com uma perna dobrada é perfeita quando há diferença de altura , ou quando você quer se aproximar sem que ela suba em você.",dica:"Ela fica de frente para você, levanta uma perna e a prende em volta do seu quadril enquanto você a segura embaixo da coxa ou no joelho.\nVocê posiciona os pés bem afastados, abaixa os quadris um pouco mais do que parece natural e deixa a perna dobrada dela fazer o trabalho de fechar o espaço, parceiro.\nMantenha a perna de apoio dela esticada e firmemente plantada naquele tapete antiderrapante do chuveiro, porque no momento em que o pé dela se mover, vocês duas vão cair como uma prateleira barata."},
+  {link:"https://i.postimg.cc/Pq4PFxTF/Chuveiro3.jpg",titulo:"Elevação da perna na parede do chuveiro",descricao:"O elevador de pernas para parede do chuveiro é ideal para acesso mais profundo e maior intensidade , usando a parede para manter o equilíbrio, para que você não precise se esforçar.",dica:"Ela fica de frente para você , levanta uma perna e coloca o pé totalmente apoiado na parede na altura do quadril, abrindo-se como um livro enquanto você entra no vão, cara.\nVocê segura o quadril dela com uma mão e apoia o antebraço da outra contra a parede acima do ombro dela para que nenhum dos dois se desequilibre.\nMantenha a perna levantada dela relaxada , não flexionada, porque uma perna tensa puxa a pélvis para perto do corpo, e você perderá aquele ângulo perfeito que você acabou de conseguir, cara."},
+  {link:"https://i.postimg.cc/WzJpjbcL/Chuveiro4.jpg",titulo:"A Rendição do Chuveiro",descricao:"O chuveiro de mão serve para quando você quer adicionar estimulação clitoriana constante sem usar as mãos, deixando que o chuveiro removível faça o trabalho delicioso",dica:"Ela está de costas, você entra por trás , então estende a mão e aponta o chuveirinho diretamente para o clitóris dela .\nMantenha a pressão da água entre baixa e média, porque a pressão alta dá a sensação de estar usando uma lavadora de alta pressão, e ela vai gritar, e não de uma forma sexy.\nVocê penetra devagar e superficialmente enquanto a água faz seu trabalho, porque penetrações rápidas fazem o jato errar o alvo, e aí você fica só molhado e frustrado."},
+  {link:"https://i.postimg.cc/XNyynn84/Chuveiro5.jpg",titulo:"Contra a parede",descricao:"A posição contra a parede é ideal para chuveiros apertados, onde o espaço é limitado e ela quer se sentir presa sem estar realmente presa.",dica:"Ela fica de frente para a parede , coloca as duas mãos espalmadas na altura dos ombros e apoia o peso do corpo nelas, de modo que os quadris se inclinem naturalmente para trás, em sua direção.\nVocê se aproxima dela por trás , com os pés para fora dos dela, e usa a própria parede para apoiar a mão livre enquanto a outra guia seu pênis para dentro.\nMantenha a testa dela apoiada nos antebraços para que o pescoço permaneça relaxado, porque um pescoço tenso significa uma parceira irritada, e ninguém termina assim."},
+  {link:"https://i.postimg.cc/FsVzKzJK/Chuveiro6.jpg",titulo:"A Bailarina",descricao:"A bailarina é ideal quando o espaço é menor do que suas calças jeans depois do Dia de Ação de Graças, permitindo que vocês fiquem próximos e conectados sem se espalharem .",dica:"Ela fica de frente para você, levanta uma perna e a envolve em sua cintura enquanto você a segura pela coxa e a puxa para perto até que não haja mais espaço entre vocês.\nMantenha os pés afastados na largura dos ombros e dê um pequeno passo à frente para que as costas dela toquem a parede, oferecendo-lhe um apoio firme.\nEla mantém a perna levantada relaxada e deixa você fazer o trabalho, porque no momento em que ela começa a flexionar o quadríceps, a posição se transforma em um treino, não em preliminares."},
+  {link:"https://i.postimg.cc/xCLYFpKx/Chuveiro7.jpg",titulo:"O Gancho",descricao:"O gancho é perfeito quando ela quer apoio sem perder a intensidade , usando a parede e o próprio corpo como uma âncora dupla.",dica:"Ela está de frente para a parede, com uma mão apoiada firmemente contra ela e a outra estendida para trás, puxando seu pescoço ou quadril para perto dela.\nEla entrelaça uma perna em volta do seu quadril, formando um ponto de interrogação, enquanto você a segura por baixo da coxa, impedindo que ela apoie o peso no chão escorregadio.\nVocê mantém o peito colado às costas dela e usa pequenos círculos com o quadril em vez de estocadas, porque movimentos bruscos quebram a conexão, e aí você fica ali parado, sem jeito."},
+  {link:"https://i.postimg.cc/1XRTcvMc/Chuveiro8.jpg",titulo:"A posição de inclinação para a pia",descricao:"A pia com apoio para a cabeça é ideal quando o chuveiro tem uma bancada sólida ou uma pia na altura da cintura , transformando os acessórios do banheiro em móveis eróticos.",dica:"Ela se inclina para a frente a partir da cintura , apoia os antebraços na pia ou na bancada e deixa os quadris inclinarem para trás, enquanto os pés permanecem firmes no chão, afastados na largura dos ombros.\nVocê se posiciona atrás dela, com as mãos em seus quadris, e a puxa para trás, em vez de avançar com força como uma britadeira.\nMantenha a região lombar dela ligeiramente arqueada , mas não torcida, porque uma curvatura forçada pode causar dor no dia seguinte."},
+  {link:"https://i.postimg.cc/j2k86tDK/Chuveiro9.jpg",titulo:"Em pé e carregando",descricao:"A posição \"em pé e carregando\" é para quando você malhou na academia e quer se exibir , mas é mais um exercício do que uma posição sexual.",dica:"Ela envolve sua cintura com as duas pernas e trava os tornozelos atrás de você enquanto você a segura pelas coxas ou pelas nádegas.\nVocê a encosta imediatamente na parede , porque até os caras mais fortes tremem depois de 30 segundos e pisos de azulejo não perdoam, cara.\nMantenha os joelhos ligeiramente flexionados e a coluna neutra , ou você vai lesionar as costas e passar a próxima semana explicando ao seu chefe por que está andando de um jeito estranho."},
+  {link:"https://i.postimg.cc/Bn2gbxB2/Chuveiro10.jpg",titulo:"O Monte da Cachoeira",descricao:"A posição de jato d'água em cascata é ideal quando ela quer controlar a profundidade e o ritmo enquanto você apenas relaxa e aprecia o espetáculo.",dica:"Você se senta com as costas retas e os pés bem afastados no chão , com as mãos apoiadas nos quadris ou nas coxas para se guiar.\nEla fica de costas para você , se abaixa sobre você e se inclina ligeiramente para a frente, de modo que suas mãos possam se apoiar em seus joelhos para manter o equilíbrio.\nEla controla a profundidade e o ritmo enquanto você mantém os quadris imóveis, porque no momento em que você começar a fazer movimentos de vai e vem para cima, você vai quebrar o ritmo dela e ela não ficará satisfeita."},
+  {link:"https://i.postimg.cc/xd0KdBdw/Chuveiro11.jpg",titulo:"O Passeio de Jetstream Pussy",descricao:"O segredo é usar o jato de hidromassagem da banheira ou um chuveiro de mão potente, direcionado exatamente para onde ela precisa, enquanto você permanece dentro dela.",dica:"Você se senta no chão da banheira com as costas apoiadas e os pés firmes no chão, enquanto ela se deita sobre você, de costas para você, e se alinha diretamente sobre o jato .\nEla ajusta a altura para que a água atinja seu clitóris perfeitamente enquanto você está totalmente dentro dela, então ela se move lentamente enquanto você segura seus quadris e controla a profundidade.\nMantenha a pressão da água em um nível médio , porque a pressão máxima é insuportável, e ela vai pular de cima de você na hora, e aí você vai ficar só um cara sentado sozinho numa banheira molhada."},
+  {link:"https://i.postimg.cc/3Rk9KzL9/Chuveiro12.jpg",titulo:"A Dança no Colo",descricao:"A posição de lap dance é exatamente o que o nome sugere, ideal quando você tem uma cadeira de chuveiro resistente, um banco de chuveiro ou uma banheira, e quer que ela faça um show .",dica:"Você se senta com as costas retas , os pés firmes no chão e as mãos apoiadas nas coxas, esperando por ela.\nEla se encosta em você, de costas para você, abaixa-se lentamente e começa a rebolar e se mexer enquanto você segura os quadris dela e deixa que ela faça todo o trabalho, parceiro.\nEla se inclina ligeiramente para a frente e apoia as mãos nos seus joelhos ou no banco, porque inclinar-se para trás coloca a coluna dela em um ângulo ruim e ela vai desistir cedo."},
+  {link:"https://i.postimg.cc/prQntyX9/BSM1.jpg",titulo:"A trava de gelo (derrete para uma liberação programada)",descricao:"Você congela sua chave dentro de um bloco de gelo. Se amarra. E então fica ali sentado esperando, porque literalmente não consegue se libertar até que o gelo derreta e deixe sua chave cair na sua mão.",dica:"Pendure esse gelo bem acima de onde você está amarrado, para que, quando ele derreter, a chave caia exatamente onde suas mãos possam alcançá-la. .\nPrepare o gelo em camadas: congele por 2 horas, adicione água morna para criar microfraturas e congele novamente para uma liberação controlada das rachaduras. .\nAdicione uma pitada de sal apenas na camada externa antes do congelamento final. Isso derrete a casca mais rapidamente, mas mantém o núcleo sólido, impedindo que você escape antes da hora."},
+  {link:"https://i.postimg.cc/RC3Bp2pP/BSM2.jpg",titulo:"Fechaduras temporizadas (temporizadores eletrônicos ou mecânicos)",descricao:"Você programa um cofre digital ou uma fechadura eletromagnética para abrir após uma contagem regressiva específica. Sem trapaças. Sem fugas antecipadas. Apenas você, um cronômetro e o zumbido silencioso de uma máquina que não se importa com o quanto você se mexe.",dica:"Programe um atraso aleatório configurando o temporizador enquanto desvia o olhar. Agora, nem você saberá exatamente quando a liberdade chegará, o que mexe com a sua cabeça da melhor maneira possível. \nInstale uma fechadura magnética em uma tomada inteligente com temporizador de contagem regressiva para que, em caso de queda de energia, ela se abra automaticamente, em vez de trancar você para sempre. \nEsconda seu cofre com temporizador dentro de uma fronha ou bolsa. Fora da vista, você para de olhar para o relógio e acaba se sentindo impotente."},
+  {link:"https://i.postimg.cc/dt4j7Sw1/BSM3.jpg",titulo:"Amarração do pulso à coxa",descricao:"Com os dois pulsos presos às coxas, ambas as mãos ficam inúteis. Você está completamente imobilizado, mas suas pernas ainda conseguem se mover, então você tem aquela deliciosa sensação de impotência sem estar totalmente preso.",dica:"Sente-se na beira da cama ou em uma cadeira resistente com os joelhos flexionados em direção ao peito e os pés apoiados no chão. \nEnrole a corda ou a tira em volta de cada coxa, logo acima do joelho, e depois prenda cada pulso na coxa correspondente, de forma que as mãos não se movam mais do que alguns centímetros. \nAperte bem as duas extremidades até se sentir preso, mas seguro, com um dedo deslizando por baixo de cada corda. Em seguida, posicione os nós de liberação bem em cima dos seus pulsos, onde você possa alcançá-los com os dentes, se necessário."},
+  {link:"https://i.postimg.cc/1XxsrHSK/BSM4.jpg",titulo:"Amarração com os tornozelos abertos",descricao:"Com os tornozelos amarrados e bem abertos, você fica completamente exposta e não consegue fechar as pernas. Essa vulnerabilidade se manifesta de forma diferente quando se está sozinha, e cada sensação parece dez vezes mais intensa.",dica:"Deite-se de costas no meio da cama com as pernas afastadas, mais largas que a largura dos ombros. \nPasse uma corda ou tira do seu tornozelo esquerdo até um poste de cama resistente ou um móvel pesado desse lado, e depois faça o mesmo com o tornozelo direito. \nAperte cada tira o suficiente para que você não consiga juntar os joelhos e, em seguida, dê nós de liberação rápida em locais de fácil acesso para ambas as mãos."},
+  {link:"https://i.postimg.cc/RVKQdV7T/BSM5.jpg",titulo:"O Laço de Oração Invertido",descricao:"Com as palmas das mãos unidas atrás das costas, os braços ficam completamente livres e os ombros bem abertos, indicando uma rendição total e indefesa.",dica:"Sente-se no chão com as mãos atrás das costas, palmas unidas como se estivesse rezando, e os dedos apontando para cima entre as omoplatas. \nEnrole a corda firmemente em volta dos dois pulsos várias vezes para prendê-los no lugar e, em seguida, aperte o nó para que nada escorregue. \nCongele sua única chave de escape dentro de uma fechadura de gelo suspensa acima de você, porque você não sairá dessa até que a água decida que acabou."},
+  {link:"https://i.postimg.cc/vHh7k2Nk/BSM6.jpg",titulo:"O Empate da Cadeira",descricao:"Com a cintura e as coxas presas a uma cadeira resistente e as mãos amarradas atrás das costas, você está completamente imobilizado e totalmente indefeso.",dica:"Sente-se em uma cadeira resistente com as costas retas e as coxas apoiadas no assento. Em seguida, enrole uma corda ou tiras em volta da cintura e de cada coxa. \nAperte tudo o suficiente para que você não consiga se levantar nem deslizar para a frente , por mais que se debata. \nAmarre os dois pulsos juntos atrás do encosto da cadeira usando um nó corrediço, deixando a ponta solta escondida ao alcance dos seus dedos."},
+  {link:"https://i.postimg.cc/vHh7k2Nk/BSM6.jpg",titulo:"O Híbrido de Cinto e Corda",descricao:"Cintos para travamento rápido e corda para ajuste preciso da tensão: você obtém o melhor dos dois mundos com uma configuração que transmite robustez e permite uma liberação limpa.",dica:"Use um cinto para prender cada pulso ou tornozelo primeiro, pois as fivelas são mais rápidas do que os nós na hora de montar o equipamento. \nPasse a corda pelas presilhas do cinto ou ao redor da fivela para adicionar mais restrição e posicionamento que os cintos sozinhos não conseguem proporcionar. \nMantenha um dispositivo de segurança reserva ao alcance, como uma segunda chave ou uma tesoura de segurança, pois misturar equipamentos significa misturar também pontos de falha."},
+  {link:"https://i.postimg.cc/rstbQXj0/BSM7.jpg",titulo:"O Envoltório de Brilho (Mumificação com Filme Plástico)",descricao:"Com o corpo inteiro envolto em plástico, você se torna um burrito humano sexy, com pressão por todo o corpo e zero mobilidade dos membros.",dica:"Comece pelos tornozelos e enrole para cima em camadas sobrepostas, mantendo a tensão firme, mas sem interromper a circulação. \nDeixe a cabeça, o pescoço e a boca completamente descobertos, porque respirar e viver são muito importantes. \nPare de enrolar na altura do peito para que seus braços permaneçam presos ao corpo e, em seguida, mantenha a tesoura de segurança escondida em uma das mãos antes de se fechar completamente."}
+];
+
+const knowledgePoints=[
+  {p:"Ponto G",t:"Zona na parede vaginal anterior — o mapa-múndi do prazer feminino"},
+  {p:"Ponto C",t:"Clitóris — 8 mil terminações nervosas dedicadas exclusivamente ao prazer"},
+  {p:"Ponto A",t:"Fórnix Anterior — mais profundo que o G, acessível com ereção completa"},
+  {p:"Ponto D",t:"Deep Spot — na parede posterior vaginal, orgasmos intensos e profundos"},
+  {p:"Ponto K",t:"Zona ao redor do clitóris — a coroa de espinhos do prazer"},
+  {p:"Ponto U",t:"Uretra feminina — fonte de prazer intenso e ignorada por muitos"},
+  {p:"Massagem Yoni",t:"Toque sagrado na vulva — honra, respiração e exploração lenta"},
+  {p:"Massagem Nuru",t:"Corpo contra corpo com gel — deslize sem atrito, puro fricção sensual"},
+  {p:"Massagem Tântrica",t:"Energia sexual circulando — respiração, atraso e explosão controlada"},
+  {p:"Sexo Tântrico",t:"O orgasmo não é o destino — cada segundo é a própria viagem"}
+];
+
+/* ===================== MOTOR DE AUDIO (Web Audio API) ===================== */
+const midiF=m=>440*Math.pow(2,(m-69)/12);
+const AudioFX={
+  ctx:null,master:null,musicBus:null,sfxBus:null,reverb:null,
+  soundOn:true,musicStarted:false,scheduler:null,hbTimer:null,
+  chordIdx:0,nextChordTime:0,chordDur:8,
+  chords:[[45,52,60,67,71],[41,48,57,64,67],[48,55,64,71,74],[43,50,59,62,69]],
+  init(){
+    if(this.ctx)return;
+    try{
+      const AC=window.AudioContext||window.webkitAudioContext;
+      this.ctx=new AC();
+      this.master=this.ctx.createGain();
+      this.master.gain.value=this.soundOn?1:0;
+      this.master.connect(this.ctx.destination);
+      this.reverb=this.ctx.createConvolver();
+      this.reverb.buffer=this.impulse(2.8,2.4);
+      const revOut=this.ctx.createGain();revOut.gain.value=0.35;
+      this.reverb.connect(revOut);revOut.connect(this.master);
+      this.musicBus=this.ctx.createGain();this.musicBus.gain.value=0.5;
+      const mSend=this.ctx.createGain();mSend.gain.value=0.5;
+      this.musicBus.connect(this.master);this.musicBus.connect(mSend);mSend.connect(this.reverb);
+      this.sfxBus=this.ctx.createGain();this.sfxBus.gain.value=0.9;
+      const sSend=this.ctx.createGain();sSend.gain.value=0.22;
+      this.sfxBus.connect(this.master);this.sfxBus.connect(sSend);sSend.connect(this.reverb);
+    }catch(e){this.ctx=null}
+  },
+  impulse(dur,decay){
+    const rate=this.ctx.sampleRate,len=Math.floor(rate*dur),buf=this.ctx.createBuffer(2,len,rate);
+    for(let c=0;c<2;c++){const d=buf.getChannelData(c);for(let i=0;i<len;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/len,decay)}
+    return buf;
+  },
+  env(g,t,vol,attack,hold,dur){
+    g.gain.setValueAtTime(0.0001,t);
+    g.gain.linearRampToValueAtTime(vol,t+attack);
+    if(hold)g.gain.setValueAtTime(Math.max(vol,0.0001),t+hold);
+    g.gain.exponentialRampToValueAtTime(0.0001,t+dur);
+  },
+  tone(o){
+    if(!this.ctx)return;
+    const t=o.t0||this.ctx.currentTime;
+    const osc=this.ctx.createOscillator();osc.type=o.type||'sine';
+    osc.frequency.setValueAtTime(o.freq,t);
+    if(o.glideTo)osc.frequency.exponentialRampToValueAtTime(Math.max(o.glideTo,1),t+(o.glideDur||o.dur*0.8));
+    const g=this.ctx.createGain();
+    this.env(g,t,o.vol,o.attack||0.015,o.hold||0,o.dur);
+    let node=osc;
+    if(o.filter){const f=this.ctx.createBiquadFilter();f.type='lowpass';f.frequency.setValueAtTime(o.filter,t);if(o.filterTo)f.frequency.exponentialRampToValueAtTime(o.filterTo,t+o.dur);osc.connect(f);node=f}
+    node.connect(g);g.connect(o.dest||this.sfxBus);
+    osc.start(t);osc.stop(t+o.dur+0.1);
+  },
+  noise(o){
+    if(!this.ctx)return;
+    const t=o.t0||this.ctx.currentTime;
+    const len=Math.floor(this.ctx.sampleRate*(o.dur+0.1));
+    const buf=this.ctx.createBuffer(1,len,this.ctx.sampleRate);
+    const d=buf.getChannelData(0);
+    for(let i=0;i<len;i++)d[i]=Math.random()*2-1;
+    const src=this.ctx.createBufferSource();src.buffer=buf;
+    const f=this.ctx.createBiquadFilter();f.type=o.ftype||'lowpass';
+    f.frequency.setValueAtTime(o.from||1000,t);
+    if(o.to)f.frequency.exponentialRampToValueAtTime(o.to,t+o.dur);
+    const g=this.ctx.createGain();
+    this.env(g,t,o.vol,o.attack||0.01,0,o.dur);
+    src.connect(f);f.connect(g);g.connect(o.dest||this.sfxBus);
+    src.start(t);src.stop(t+o.dur+0.1);
+  },
+  ready(){return this.ctx&&this.soundOn},
+  /* --- musica ambiente gerativa --- */
+  startMusic(){
+    this.init();
+    if(!this.ctx)return;
+    if(this.ctx.state==='suspended')this.ctx.resume();
+    if(this.musicStarted)return;
+    this.musicStarted=true;
+    this.nextChordTime=this.ctx.currentTime+0.15;
+    this.chordIdx=0;
+    this.scheduler=setInterval(()=>this.scheduleAhead(),250);
+    this.hbTimer=setInterval(()=>this.heartbeat(),1900);
+    this.scheduleAhead();
+  },
+  scheduleAhead(){
+    if(!this.ctx)return;
+    while(this.nextChordTime<this.ctx.currentTime+1.2){
+      this.playChord(this.chords[this.chordIdx%this.chords.length],this.nextChordTime);
+      this.chordIdx++;this.nextChordTime+=this.chordDur;
+    }
+  },
+  playChord(ch,t){
+    this.tone({freq:midiF(ch[0]),type:'sine',t0:t,dur:this.chordDur+0.5,vol:0.09,attack:1.4,hold:this.chordDur-2.6,filter:520,dest:this.musicBus});
+    for(let i=1;i<ch.length;i++){const f=midiF(ch[i]);this.pad(f,t);this.pad(f*1.0045,t)}
+    const pool=ch.slice(1);
+    const n1=pool[Math.floor(Math.random()*pool.length)]+12;
+    this.pluck(midiF(n1),t+2.2+Math.random()*2.5,0.05);
+    if(Math.random()<0.5){const n2=pool[Math.floor(Math.random()*pool.length)]+24;this.pluck(midiF(n2),t+4.5+Math.random()*2.2,0.035)}
+  },
+  pad(f,t){this.tone({freq:f,type:'triangle',t0:t,dur:this.chordDur+0.4,vol:0.028,attack:2.4,hold:this.chordDur-3.2,filter:900,dest:this.musicBus})},
+  pluck(f,t,vol){
+    this.tone({freq:f,type:'triangle',t0:t,dur:1.4,vol:vol||0.05,attack:0.008,filter:2400,dest:this.musicBus});
+    this.tone({freq:f*2,type:'sine',t0:t,dur:0.9,vol:(vol||0.05)*0.4,attack:0.008,dest:this.musicBus});
+  },
+  heartbeat(){
+    if(!this.ready()||document.hidden||gameState!=='PLAYING')return;
+    this.thump(0.075);
+    setTimeout(()=>{if(this.ctx)this.thump(0.05)},270);
+  },
+  thump(vol){const t=this.ctx.currentTime;this.tone({freq:78,glideTo:44,glideDur:0.16,t0:t,dur:0.22,vol:vol,attack:0.008})},
+  duckMusic(on){
+    if(!this.ctx||!this.musicBus)return;
+    const t=this.ctx.currentTime;
+    this.musicBus.gain.cancelScheduledValues(t);
+    this.musicBus.gain.linearRampToValueAtTime(on?0.16:0.5,t+0.6);
+  },
+  /* --- efeitos --- */
+  click(){if(!this.ready())return;this.tone({freq:1850,dur:0.045,vol:0.045,type:'sine'});this.noise({dur:0.03,vol:0.02,ftype:'highpass',from:4000})},
+  tick(){if(!this.ready())return;this.tone({freq:1150,dur:0.05,vol:0.035})},
+  bell(f,vol){
+    const t=this.ctx.currentTime;
+    this.tone({freq:f,t0:t,dur:1.1,vol:vol,attack:0.006});
+    this.tone({freq:f*2.01,t0:t,dur:0.6,vol:vol*0.35,attack:0.006});
+    this.tone({freq:f*3.02,t0:t,dur:0.35,vol:vol*0.12,attack:0.006});
+  },
+  reveal(n){
+    if(!this.ready())return;
+    const scale=[0,2,4,7,9];
+    const m=76+scale[n%5]+((Math.floor(n/5)%2)*12);
+    this.bell(midiF(m),0.16);
+  },
+  prize(){
+    if(!this.ready())return;
+    const t=this.ctx.currentTime;
+    [60,64,67,71,74,79,84].forEach((n,i)=>{this.tone({freq:midiF(n),type:'triangle',t0:t+i*0.075,dur:1.5,vol:0.12,attack:0.006,filter:3000})});
+    this.noise({t0:t+0.15,dur:0.9,vol:0.05,ftype:'bandpass',from:2500,to:5200,attack:0.25});
+  },
+  victory(){
+    if(!this.ready())return;
+    const t=this.ctx.currentTime;
+    [60,64,67,72,76,79,84,88].forEach((n,i)=>{this.tone({freq:midiF(n),type:'triangle',t0:t+i*0.09,dur:1.6,vol:0.12,attack:0.006,filter:3600})});
+    [72,76,79,84].forEach(n=>this.tone({freq:midiF(n),t0:t+0.85,dur:2.6,vol:0.07,attack:0.3,hold:1.6}));
+  },
+  bomb(){
+    if(!this.ready())return;
+    const t=this.ctx.currentTime;
+    this.tone({freq:170,glideTo:40,glideDur:0.55,t0:t,dur:0.7,vol:0.5});
+    this.noise({t0:t,dur:0.55,vol:0.38,from:2800,to:110});
+    this.noise({t0:t,dur:0.1,vol:0.22,ftype:'highpass',from:1600});
+  },
+  sad(){
+    if(!this.ready())return;
+    const t=this.ctx.currentTime;
+    [57,53,50,45].forEach((n,i)=>{this.tone({freq:midiF(n),t0:t+0.15+i*0.3,dur:0.75,vol:0.11,attack:0.03,filter:1200})});
+  },
+  whoosh(vol){
+    if(!this.ready())return;
+    this.noise({dur:0.32,vol:vol||0.09,ftype:'bandpass',from:380,to:1500,attack:0.12});
+  },
+  toggle(){
+    this.soundOn=!this.soundOn;
+    try{localStorage.setItem('cms_sound',this.soundOn?'on':'off')}catch(e){}
+    if(this.ctx&&this.master){
+      const t=this.ctx.currentTime;
+      this.master.gain.cancelScheduledValues(t);
+      this.master.gain.linearRampToValueAtTime(this.soundOn?1:0,t+0.2);
+    }
+    if(this.soundOn)this.startMusic();
+    updateSoundIcon();
+  }
+};
+
+/* ===================== ESTADO ===================== */
+const GRID_TOTAL=36,BOMB_COUNT=10,PRIZE_EVERY=3;
+let grid=[],safeCount=0,prizesWon=0,prizeQueue=[],collectedIdx=[],gameState='START',countdownTimer=null,previousScreen='game-screen',bombsPlaced=false;
+let bestSafe=0;
+try{
+  bestSafe=+(localStorage.getItem('cms_best')||0);
+  collectedIdx=JSON.parse(localStorage.getItem('cms_col')||'[]')||[];
+  if(!Array.isArray(collectedIdx))collectedIdx=[];
+  collectedIdx=collectedIdx.filter(i=>i>=0&&i<allPrizeCards.length);
+}catch(e){}
+try{AudioFX.soundOn=localStorage.getItem('cms_sound')!=='off'}catch(e){}
+
+function saveCollection(){try{localStorage.setItem('cms_col',JSON.stringify(collectedIdx))}catch(e){}}
+function saveBest(){try{localStorage.setItem('cms_best',String(bestSafe))}catch(e){}}
+function updateStartCollection(){
+  const el=document.getElementById('start-coll');
+  if(!el)return;
+  el.innerHTML=collectedIdx.length
+    ?'Sua cole&ccedil;&atilde;o: <b>'+collectedIdx.length+'</b> de <b>'+allPrizeCards.length+'</b> prendas desbloqueadas'
+    :'Cole&ccedil;&atilde;o vazia &mdash; <b>'+allPrizeCards.length+'</b> prendas esperam por voc&ecirc;s';
+}
+function updateSoundIcon(){
+  const b=document.getElementById('sound-toggle');
+  if(!b)return;
+  b.innerHTML=AudioFX.soundOn?'<i class="fas fa-volume-high" aria-hidden="true"></i>':'<i class="fas fa-volume-xmark" aria-hidden="true"></i>';
+  b.setAttribute('aria-label',AudioFX.soundOn?'Desativar som':'Ativar som');
+  b.classList.toggle('muted',!AudioFX.soundOn);
+}
+function vib(p){if(navigator.vibrate){try{navigator.vibrate(p)}catch(e){}}}
+function shuffle(a){const b=[...a];for(let i=b.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]]}return b}
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  AudioFX.whoosh(0.05);
+}
+
+/* ===================== DECORACOES ===================== */
+function createBgParticles(){
+  for(let i=0;i<14;i++){
+    const p=document.createElement('div');p.className='bg-particle';
+    const s=Math.random()*7+2.5;
+    p.style.width=s+'px';p.style.height=s+'px';p.style.left=Math.random()*100+'%';
+    p.style.background=Math.random()>0.6?'rgba(230,198,140,0.5)':'rgba(233,183,192,0.5)';
+    p.style.animationDuration=(Math.random()*12+10)+'s';p.style.animationDelay=(Math.random()*12)+'s';
+    document.body.appendChild(p);
+  }
+}
+function createEmojis3D(){
+  const c=document.getElementById('emojis-container');c.innerHTML='';
+  const e=['\u{1F525}','\u{1F48B}','\u{1F445}','\u{1F351}','\u{1F4A6}','\u{1F608}','\u{1F924}','\u{1F497}','\u2728','\u{1F339}'];
+  for(let i=0;i<e.length;i++){
+    const el=document.createElement('div');el.className='emoji-3d';el.textContent=e[i];
+    el.style.fontSize=(Math.random()*0.9+0.9)+'rem';
+    el.style.left=(Math.random()*90+5)+'%';el.style.top=(Math.random()*85+5)+'%';
+    el.style.animationDuration=(Math.random()*6+7)+'s';el.style.animationDelay=(Math.random()*6)+'s';
+    c.appendChild(el);
+  }
+}
+function spawnChip(label,sub,cls){
+  const c=document.getElementById('kp-container');
+  const el=document.createElement('div');
+  el.className='knowledge-point'+(cls?' '+cls:'');
+  el.innerHTML='<span class="kp-label">'+label+'</span><span class="kp-sub">'+sub+'</span>';
+  el.style.left=(Math.random()*60+15)+'%';el.style.bottom='0px';
+  c.appendChild(el);
+  setTimeout(()=>el.remove(),7200);
+}
+function spawnKnowledgePoint(){
+  const item=knowledgePoints[Math.floor(Math.random()*knowledgePoints.length)];
+  spawnChip(item.p,item.t);
+}
+const flirtyMsgs=['Que calor \u00e9 esse?\u2026','Pegando fogo!','Em chamas!','N\u00edvel inferno!','Impar\u00e1veis!','Isso est\u00e1 s\u00f3 come\u00e7ando\u2026'];
+function spawnFlirty(){
+  const msg=flirtyMsgs[(Math.floor(safeCount/5)-1)%flirtyMsgs.length];
+  spawnChip(msg,safeCount+' seguras seguidas','flirty');
+}
+function launchConfetti(n){
+  const colors=['#E6C68C','#F7E3B0','#D4697F','#E9B7C0','#FFF5F2','#B8945F'];
+  const count=n||55;
+  for(let i=0;i<count;i++){
+    const c=document.createElement('div');c.className='confetti';
+    c.style.left=Math.random()*100+'%';
+    c.style.width=(Math.random()*7+3)+'px';c.style.height=(Math.random()*7+3)+'px';
+    c.style.background=colors[Math.floor(Math.random()*colors.length)];
+    c.style.borderRadius=Math.random()>0.5?'50%':'2px';
+    c.style.animationDuration=(Math.random()*2+2.2)+'s';c.style.animationDelay=(Math.random()*0.5)+'s';
+    document.body.appendChild(c);
+    setTimeout(()=>c.remove(),4800);
+  }
+}
+
+/* ===================== JOGO ===================== */
+function initGrid(){grid=[];for(let i=0;i<GRID_TOTAL;i++)grid.push({isBomb:false,revealed:false});bombsPlaced=false}
+function placeBombs(exclude){
+  let placed=0;
+  while(placed<BOMB_COUNT){
+    const idx=Math.floor(Math.random()*GRID_TOTAL);
+    if(idx!==exclude&&!grid[idx].isBomb){grid[idx].isBomb=true;placed++}
+  }
+}
+function buildQueue(){
+  const all=allPrizeCards.map((_,i)=>i);
+  const remaining=all.filter(i=>!collectedIdx.includes(i));
+  return shuffle(remaining.length?remaining:all);
+}
+function renderGrid(){
+  const el=document.getElementById('grid');el.innerHTML='';
+  grid.forEach((cell,i)=>{
+    const div=document.createElement('div');
+    div.className='cell cell-enter';
+    div.style.animationDelay=(i*16)+'ms';
+    div.setAttribute('role','gridcell');div.setAttribute('tabindex','0');
+    const inner=document.createElement('div');inner.className='cell-inner';
+    const front=document.createElement('div');front.className='cell-front';
+    front.innerHTML='<i class="far fa-heart"></i>';
+    const back=document.createElement('div');
+    back.className='cell-back '+(cell.isBomb?'bomb':'safe');
+    back.innerHTML=cell.isBomb?'<i class="fas fa-bomb"></i>':'<i class="fas fa-heart"></i>';
+    inner.appendChild(front);inner.appendChild(back);div.appendChild(inner);
+    div.addEventListener('click',()=>handleCellClick(i));
+    div.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();handleCellClick(i)}});
+    el.appendChild(div);
+  });
+}
+function updateStats(){
+  document.getElementById('safe-display').textContent=safeCount;
+  document.getElementById('prize-display').textContent=prizesWon;
+  document.getElementById('coll-count').textContent=collectedIdx.length;
+  const prog=safeCount%PRIZE_EVERY;
+  document.getElementById('progress-fill').style.width=(prog/PRIZE_EVERY)*100+'%';
+  const remaining=PRIZE_EVERY-prog;
+  document.getElementById('progress-label').textContent=(remaining===PRIZE_EVERY&&safeCount>0)
+    ?'Pr\u00f3xima prenda em 3 jogadas'
+    :'Pr\u00f3xima prenda em '+remaining+' jogada'+(remaining!==1?'s':'');
+}
+function handleCellClick(index){
+  if(gameState!=='PLAYING')return;
+  if(grid[index].revealed)return;
+  if(!bombsPlaced){placeBombs(index);bombsPlaced=true}
+  grid[index].revealed=true;
+  document.getElementById('grid').children[index].classList.add('revealed');
+  if(grid[index].isBomb){
+    gameState='GAMEOVER';
+    AudioFX.bomb();vib([70,50,110]);
+    grid.forEach((c,i)=>{if(c.isBomb){c.revealed=true;document.getElementById('grid').children[i].classList.add('revealed')}});
+    document.getElementById('grid').classList.add('shake-anim');
+    setTimeout(()=>document.getElementById('grid').classList.remove('shake-anim'),500);
+    if(safeCount>bestSafe){bestSafe=safeCount;saveBest()}
+    AudioFX.duckMusic(true);
+    setTimeout(showGameOver,1100);
+  }else{
+    safeCount++;
+    AudioFX.reveal(safeCount);vib(12);
+    updateStats();
+    if(safeCount%5===0)spawnFlirty();
+    if(safeCount%PRIZE_EVERY===0&&prizeQueue.length>0){
+      gameState='PRIZE';
+      const idx=prizeQueue.shift();
+      const isNew=!collectedIdx.includes(idx);
+      if(isNew){collectedIdx.push(idx);saveCollection();updateStartCollection()}
+      prizesWon++;
+      updateStats();
+      setTimeout(()=>showPrizeModal(idx,isNew),700);
+    }
+    checkVictory();
+  }
+}
+function checkVictory(){
+  const safeCells=grid.filter(c=>!c.isBomb).length;
+  const revealedSafe=grid.filter(c=>!c.isBomb&&c.revealed).length;
+  if(revealedSafe===safeCells&&gameState==='PLAYING'){
+    gameState='VICTORY';
+    if(safeCount>bestSafe){bestSafe=safeCount;saveBest()}
+    launchConfetti(90);AudioFX.victory();
+    setTimeout(showVictory,900);
+  }
+}
+function showPrizeModal(idx,isNew){
+  const card=allPrizeCards[idx];
+  document.getElementById('prize-img').src=card.link;
+  document.getElementById('prize-img').alt=card.titulo;
+  document.getElementById('prize-badge').textContent=isNew?'PRENDA':'REPETIDA';
+  document.getElementById('prize-titulo').textContent=card.titulo;
+  document.getElementById('prize-desc').textContent=card.descricao;
+  document.getElementById('prize-dica').innerHTML=card.dica.replace(/\n/g,'<br>');
+  document.getElementById('prize-modal').classList.add('active');
+  AudioFX.prize();launchConfetti(45);
+}
+function closePrize(){
+  document.getElementById('prize-modal').classList.remove('active');
+  AudioFX.whoosh(0.05);
+  if(gameState==='PRIZE')gameState='PLAYING';
+  checkVictory();
+}
+function showGameOver(){
+  document.getElementById('go-prizes').textContent=prizesWon;
+  document.getElementById('go-safe').textContent=safeCount;
+  document.getElementById('go-best').textContent=bestSafe;
+  showScreen('gameover-screen');
+  AudioFX.sad();
+  let countdown=4;
+  const cdEl=document.getElementById('go-countdown');
+  cdEl.textContent=countdown;
+  if(countdownTimer)clearInterval(countdownTimer);
+  countdownTimer=setInterval(()=>{
+    countdown--;cdEl.textContent=countdown;
+    if(countdown>0)AudioFX.tick();
+    if(countdown<=0){clearInterval(countdownTimer);countdownTimer=null;startGame()}
+  },1000);
+}
+function showVictory(){
+  document.getElementById('vic-prizes').textContent=prizesWon;
+  document.getElementById('vic-safe').textContent=safeCount;
+  showScreen('victory-screen');
+}
+function showCollection(){
+  const g=document.getElementById('collection-grid');g.innerHTML='';
+  const total=allPrizeCards.length,have=collectedIdx.length;
+  document.getElementById('coll-progress').innerHTML='<b>'+have+'</b> de <b>'+total+'</b> prendas descobertas';
+  document.getElementById('coll-complete').classList.toggle('show',have>=total);
+  if(have===0){
+    g.innerHTML='<div class="coll-empty">Nenhuma prenda desbloqueada ainda. Jogue e descubra!</div>';
+  }else{
+    collectedIdx.forEach((cardIdx,i)=>{
+      const card=allPrizeCards[cardIdx];
+      const thumb=document.createElement('div');
+      thumb.className='coll-thumb';
+      thumb.innerHTML='<img src="'+card.link+'" alt="'+card.titulo+'" loading="lazy"><div class="coll-title">'+card.titulo+'</div>';
+      thumb.addEventListener('click',()=>openCollCard(i));
+      g.appendChild(thumb);
+    });
+  }
+  previousScreen=document.querySelector('.screen.active')?.id||'game-screen';
+  showScreen('collection-screen');
+}
+function openCollCard(i){
+  const card=allPrizeCards[collectedIdx[i]];
+  document.getElementById('coll-img').src=card.link;
+  document.getElementById('coll-img').alt=card.titulo;
+  document.getElementById('coll-titulo').textContent=card.titulo;
+  document.getElementById('coll-desc').textContent=card.descricao;
+  document.getElementById('coll-dica').innerHTML=card.dica.replace(/\n/g,'<br>');
+  document.getElementById('coll-modal').classList.add('active');
+}
+function closeCollModal(){document.getElementById('coll-modal').classList.remove('active')}
+function backToGame(){
+  if(gameState==='PLAYING'||gameState==='PRIZE')showScreen('game-screen');
+  else if(gameState==='GAMEOVER')showScreen('gameover-screen');
+  else if(gameState==='VICTORY')showScreen('victory-screen');
+  else showScreen(previousScreen);
+}
+function startGame(){
+  if(countdownTimer){clearInterval(countdownTimer);countdownTimer=null}
+  safeCount=0;prizesWon=0;bombsPlaced=false;
+  prizeQueue=buildQueue();
+  gameState='PLAYING';
+  initGrid();renderGrid();updateStats();
+  AudioFX.startMusic();AudioFX.duckMusic(false);
+  showScreen('game-screen');
+}
+function restartGame(){startGame()}
+
+/* ===================== INICIALIZACAO ===================== */
+document.addEventListener('DOMContentLoaded',()=>{
+  createBgParticles();createEmojis3D();
+  setInterval(spawnKnowledgePoint,7000);
+  setTimeout(spawnKnowledgePoint,1800);
+  updateSoundIcon();updateStartCollection();
+  document.getElementById('sound-toggle').addEventListener('click',()=>AudioFX.toggle());
+  document.addEventListener('click',e=>{if(e.target.closest('button'))AudioFX.click()},true);
+  document.addEventListener('pointerdown',()=>{if(AudioFX.ctx&&AudioFX.ctx.state==='suspended')AudioFX.ctx.resume()});
+  document.addEventListener('keydown',e=>{
+    if(e.key==='Escape'){
+      const cm=document.getElementById('coll-modal');
+      if(cm.classList.contains('active'))closeCollModal();
+    }
+  });
+  const pm=document.getElementById('coll-modal');
+  pm.addEventListener('click',e=>{if(e.target===pm)closeCollModal()});
+});
+</script>
+</body>
+</html>
